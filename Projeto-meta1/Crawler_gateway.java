@@ -12,6 +12,7 @@ public class Crawler_gateway extends UnicastRemoteObject implements Crawler_gate
 
     @Override
     public String getURL(){
+        if(URL_queue.isEmpty()) return null;
         visited.add(URL_queue.peek());
         return URL_queue.poll();
     }
