@@ -29,5 +29,12 @@ public class Crawler_gateway extends UnicastRemoteObject implements Crawler_gate
         return null;
     }
 
+    @Override
+    public Void addURL(String new_URL) {
+        if(URL_queue.contains(new_URL) || visited.contains(new_URL)) return null;
+
+        URL_queue.add(new_URL);
+        return null;
+    }
 
 }

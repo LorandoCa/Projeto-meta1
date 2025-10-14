@@ -1,7 +1,9 @@
-import java.io.*;
+//import java.io.*;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+
+//Mede o tempo medio de pesquisa -> IMPLEMENTAR
 
 public class Gateway {
     public static void main(String[] args) {
