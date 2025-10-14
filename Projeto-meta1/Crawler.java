@@ -17,7 +17,7 @@ public static void main(String args[]) {
     try {
         Registry registry = LocateRegistry.getRegistry("localhost", 1099);
         System.out.println("Aquiiiiiii");
-        Crawler_gateway_interface stub = (Crawler_gateway_interface) registry.lookup("Gateway");
+        Gateway_interface stub = (Gateway_interface) registry.lookup("Gateway");
         
         //Setup end
 

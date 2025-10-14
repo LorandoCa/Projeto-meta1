@@ -9,7 +9,7 @@ public class Gateway {
     public static void main(String[] args) {
 
         try {
-            Crawler_gateway_interface obj = new Crawler_gateway();
+            Gateway_interface obj = new GatewayImp();
             Registry registry = LocateRegistry.createRegistry(1099);
             registry.rebind("Gateway", obj);
         } catch (RemoteException e) {
