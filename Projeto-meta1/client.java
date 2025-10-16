@@ -1,4 +1,4 @@
-import java.rmi.registry.LocateRegistry;
+/*import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.List;
 
@@ -35,4 +35,4 @@ public class client implements ClientInterface {
 
 
     }
-} 
+} */

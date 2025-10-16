@@ -41,7 +41,7 @@ public static void main(String args[]) {
 
                 for (Element link : links){
                     Refs.add(link.attr("abs:href"));
-                    System.out.println(Refs.getFirst());
+                    System.out.println(Refs.get(Refs.size() - 1));
                     //Inserir elementos na URLqueue
                 }
                 stub.addURLs(Refs); //Adicionar 
