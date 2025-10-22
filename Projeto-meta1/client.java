@@ -2,8 +2,7 @@
 import java.rmi.registry.Registry;
 import java.util.List;
 
-public class client implements ClientInterface {
-
+public class client
     Registry registry;
     Crawler_gateway stub;
 
