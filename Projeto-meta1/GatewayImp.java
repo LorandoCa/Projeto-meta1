@@ -3,6 +3,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
+import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 
@@ -61,27 +62,33 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
         //Ordenar pelo valor (de menor para maior) ChatGPT
         searchFreq = searchFreq.entrySet()
             .stream()
-            .sorted(Map.Entry.<String, Integer>comparingByValue().reversed()) // ou .reversed() para maior→menor
+            .sorted(Map.Entry.<String, Integer>comparingByValue().reversed()) // .reversed() para maior→menor
             .collect(Collectors.toMap(
                 Map.Entry::getKey,
                 Map.Entry::getValue,
                 (e1, e2) -> e1,  // merge function
                 LinkedHashMap::new // mantém a ordem do stream
             ));
-        this.collback();
-        return null; //vai retornar a lista de palavras
+        
+            this.collback();
+        
+            return null; //vai retornar a lista de palavras
     }
 
 
     @Override
     public void collback() {
-        ArrayList<String> var1 = new ArrayList<>();
+        List<String> listaPesq = new ArrayList<>(searchFreq.keySet());
   
-        for(int var2 = 0; var2 < this.clients.size(); ++var2) {
+        for(int i = 0; i < this.clients.size(); ++i) {
            try {
-              ((Client_interface)this.clients.get(var2)).updateStatistics(var1.subList(0, 10));
-           } catch (Exception var4) {
-              var4.printStackTrace();
+              ((Client_interface)this.clients.get(i)).updateStatistics(listaPesq.subList(0, 10));
+           }
+            catch (NoSuchObjectException a){ //unsubscribe
+                clients.remove(i);
+                
+            }catch (Exception e) {
+              e.printStackTrace();
            }
         }
   
