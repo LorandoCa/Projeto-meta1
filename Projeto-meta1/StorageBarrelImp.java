@@ -6,19 +6,28 @@ public class StorageBarrelImp extends UnicastRemoteObject implements StorageBarr
     // Índice invertido: palavra -> conjunto de URLs
     private Map<String, Set<String>> index;
 
+    private Map<String, Set<String>> linkPages;
+
     private Map<String, Integer> urlPopularity;
 
     public StorageBarrelImp() throws RemoteException {
         index = new HashMap<>();
+        linkPages = new HashMap<>();
         urlPopularity = new HashMap<>();
     }
 
     @Override
-    public void addWordToStructure(String word, String url) {
+    public synchronized void addWordToStructure(String word, String url) {
         index.computeIfAbsent(word,  k -> new HashSet<>()).add(url);
+        urlPopularity.putIfAbsent(url, 0); // garante que a URL existe no mapa
+    }
 
-        // Sempre que adicionar uma URL nova para determinada palavra incrementa-se o valor no Map da popularidade
-        urlPopularity.put(url, urlPopularity.getOrDefault(url, 0) + 1);
+    @Override
+    public synchronized void addLinks(String fromUrl, Set<String> toUrls){
+        linkPages.put(fromUrl, toUrls);
+        for (String to : toUrls) {
+            urlPopularity.put(to, urlPopularity.getOrDefault(to, 0) + 1);
+        }
     }
 
     @Override
@@ -43,5 +52,21 @@ public class StorageBarrelImp extends UnicastRemoteObject implements StorageBarr
         });
         
         return sortedURLs;
+    }
+
+    // --- Teste simples ---
+    public static void main(String[] args) throws RemoteException {
+        StorageBarrelImp barrel = new StorageBarrelImp();
+
+        // Simula downloaders adicionando palavras
+        barrel.addWordToStructure("universidade", "http://www.uc.pt");
+        barrel.addWordToStructure("universidade", "https://en.wikipedia.org/wiki/University_of_Coimbra");
+        barrel.addWordToStructure("coimbra", "https://en.wikipedia.org/wiki/University_of_Coimbra");
+        barrel.addWordToStructure("Portugal", "http://www.uc.pt");
+        barrel.addWordToStructure("Brasil", "http://www.uc.pt");
+
+        // Pesquisa
+        System.out.println("Busca por ['universidade']: " + barrel.returnSearchResult(Arrays.asList("universidade")));
+        System.out.println("Busca por ['universidade', 'coimbra']: " + barrel.returnSearchResult(Arrays.asList("universidade", "coimbra")));
     }
 }
