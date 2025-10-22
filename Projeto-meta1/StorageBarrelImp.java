@@ -16,6 +16,8 @@ public class StorageBarrelImp extends UnicastRemoteObject implements StorageBarr
     @Override
     public void addWordToStructure(String word, String url) {
         index.computeIfAbsent(word,  k -> new HashSet<>()).add(url);
+
+        // Sempre que adicionar uma URL nova para determinada palavra incrementa-se o valor no Map da popularidade
         urlPopularity.put(url, urlPopularity.getOrDefault(url, 0) + 1);
     }
 
@@ -34,7 +36,11 @@ public class StorageBarrelImp extends UnicastRemoteObject implements StorageBarr
 
         // Ordena pelos links recebidos (popularidade)
         List<String> sortedURLs = new ArrayList<>(resultURLs);
-        sortedURLs.sort((a, b) -> urlPopularity.getOrDefault(b, 0) - urlPopularity.getOrDefault(a, 0));
+        sortedURLs.sort((a, b) -> {
+            int popA = urlPopularity.getOrDefault(a, 0);
+            int popB = urlPopularity.getOrDefault(b, 0);
+            return popB - popA; // ordem decrescente
+        });
         
         return sortedURLs;
     }
