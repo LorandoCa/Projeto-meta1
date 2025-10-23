@@ -17,8 +17,10 @@ public class StorageBarrelImp extends UnicastRemoteObject implements StorageBarr
     }
 
     @Override
-    public synchronized void addWordToStructure(String word, String url) {
-        index.computeIfAbsent(word,  k -> new HashSet<>()).add(url);
+    public synchronized void addWordToStructure(Set<String> word, String url) {
+        for (String words : word){
+            index.computeIfAbsent(words,  k -> new HashSet<>()).add(url);
+        }
         urlPopularity.putIfAbsent(url, 0); // garante que a URL existe no mapa
     }
 
