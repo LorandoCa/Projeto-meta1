@@ -60,6 +60,12 @@ public class StorageBarrelImp extends UnicastRemoteObject implements StorageBarr
     public static void main(String[] args) throws RemoteException {
         StorageBarrelImp barrel = new StorageBarrelImp();
 
+        
+        //Inicializar o RPC do barrel
+        //Falta implementar o reliable multicast para fazer a sincronizacao de barrels
+
+
+        
         // Simula downloaders adicionando palavras
         barrel.addWordToStructure("universidade", "http://www.uc.pt");
         barrel.addWordToStructure("universidade", "https://en.wikipedia.org/wiki/University_of_Coimbra");
