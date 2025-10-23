@@ -1,6 +1,9 @@
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
+import java.rmi.Naming;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+
 
 public class StorageBarrelImp extends UnicastRemoteObject implements StorageBarrelInterface{
     // Índice invertido: palavra -> conjunto de URLs
@@ -14,6 +17,7 @@ public class StorageBarrelImp extends UnicastRemoteObject implements StorageBarr
         index = new HashMap<>();
         linkPages = new HashMap<>();
         urlPopularity = new HashMap<>();
+
     }
 
     @Override
@@ -55,24 +59,22 @@ public class StorageBarrelImp extends UnicastRemoteObject implements StorageBarr
     }
 
     // --- Teste simples ---
-    public static void main(String[] args) throws RemoteException {
-        StorageBarrelImp barrel = new StorageBarrelImp();
 
-        
-        //Inicializar o RPC do barrel
-        //Falta implementar o reliable multicast para fazer a sincronizacao de barrels
+    public static void main(String[] args) {
 
+        try{
+            LocateRegistry.createRegistry(1099); // cria o registry na porta 1099
+            System.out.println("RMI registry iniciado na porta 1099");
+            
+            StorageBarrelImp barrel = new StorageBarrelImp();
+            Naming.rebind("Barrel", barrel);
 
-        
-        // Simula downloaders adicionando palavras
-        barrel.addWordToStructure("universidade", "http://www.uc.pt");
-        barrel.addWordToStructure("universidade", "https://en.wikipedia.org/wiki/University_of_Coimbra");
-        barrel.addWordToStructure("coimbra", "https://en.wikipedia.org/wiki/University_of_Coimbra");
-        barrel.addWordToStructure("Portugal", "http://www.uc.pt");
-        barrel.addWordToStructure("Brasil", "http://www.uc.pt");
-
-        // Pesquisa
-        System.out.println("Busca por ['universidade']: " + barrel.returnSearchResult(Arrays.asList("universidade")));
-        System.out.println("Busca por ['universidade', 'coimbra']: " + barrel.returnSearchResult(Arrays.asList("universidade", "coimbra")));
+            
+        }
+        catch (Exception e) {
+            System.out.println("null");
+            e.printStackTrace();
+        }
     }
 }
+

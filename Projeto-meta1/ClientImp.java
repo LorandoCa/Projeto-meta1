@@ -98,14 +98,20 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
                     break;
                 
                 case 2:
-                    System.out.println("Escreva uma palavra\n");
+                    System.out.println("Escreva uma palavra");
                     String wrd = scanner.nextLine(); //Possivel verificacao do formato para confirmar que é uma URL
                     try {
-                        gateway_stub.pesquisa_word(wrd);
+                        List<String> result= gateway_stub.pesquisa_word(wrd);
+                        System.out.printf("%d\n\n", result.size());
+                        for( String i : result){
+                            System.out.printf("%s\n", i);
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                
+                    
+                    break;
+
                     case 3:
                         System.out.println("Escreva a sua URL de referência\n");
                         url = scanner.nextLine(); //Possivel verificacao do formato para confirmar que é uma URL
@@ -115,6 +121,8 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
                             e.printStackTrace();
                         }
                     
+                        break;
+
                     case 4:
                         try {
                             String estatisticas= gateway_stub.statistics();
@@ -123,6 +131,7 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
+                        break;
                 default:
                     break;
             }

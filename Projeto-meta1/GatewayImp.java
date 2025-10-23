@@ -5,7 +5,6 @@ import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
 
 
 public class GatewayImp extends UnicastRemoteObject implements Gateway_interface{
@@ -14,13 +13,19 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
     Set <String> visited= new HashSet<>();
     List<Client_interface> clients= new ArrayList<>();//do callback to all the stored references
 
-    // <nome da implementacao da interface de barrel> stub_barrel;
+    StorageBarrelInterface stub_barrel;
 
 
     Map<String, Integer> searchFreq= new HashMap<>();
 
     public GatewayImp() throws RemoteException {super();
-        //Inicializar registry e stub de barrel apos criar o "servidor" Barrel
+        try {
+            stub_barrel= (StorageBarrelInterface) Naming.lookup("Barrel");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+       
+
     }
 
     @Override
@@ -50,10 +55,16 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
 
     @Override
     public List<String> pesquisa_word(String word){
+        List<String> result=null;
+        String[] words= word.split(" ");
+        List <String> wordss= new ArrayList<>(Arrays.asList(words));
         
-        //stub_barrel.search(word);
-
-
+        try {
+            result= stub_barrel.returnSearchResult(wordss);
+            System.out.println(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         searchFreq.put(word, searchFreq.getOrDefault(word, 0) + 1);
 
@@ -72,7 +83,7 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
         
             this.collback();
         
-            return null; //vai retornar a lista de palavras
+        return result; //vai retornar a lista de palavras
     }
 
 
@@ -113,7 +124,11 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
     
     @Override
     public List<String> pesquisa_URL(String url){
-        //stub do barrel
+        try {
+        
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
         return null;
     }
 
@@ -124,26 +139,15 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
 
 
 
-
-
-
-
-
-
-
-
-
-
     public static void main(String[] args) {
 
         try {
 
-            LocateRegistry.createRegistry(1099); // cria o registry na porta 1099
-            System.out.println("RMI registry iniciado na porta 1099");
-
             
             GatewayImp obj = new GatewayImp();
             Naming.rebind("Gateway", obj);
+
+    
 
         } catch (RemoteException e) {
             e.printStackTrace();
