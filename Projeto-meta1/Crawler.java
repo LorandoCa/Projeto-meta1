@@ -16,6 +16,7 @@ public static void main(String args[]) {
     //Setup
     try {
         Gateway_interface stub = (Gateway_interface) Naming.lookup("Gateway");
+        StorageBarrelInterface stub_barrel= (StorageBarrelInterface) Naming.lookup("Barrel");
         //Setup end
 
         String url = args[0];
@@ -33,6 +34,7 @@ public static void main(String args[]) {
                 }
 
                 //Mandar ao Barrel a lista de palavras e o URL atual
+                stub_barrel.addWordToStructure(words_indexed, url);
 
                 Elements links = doc.select("a[href]");
                 Set<String> Refs = new HashSet<>();
@@ -41,6 +43,9 @@ public static void main(String args[]) {
                     Refs.add(link.attr("abs:href"));
                     
                 }
+                
+                stub_barrel.addLinks(url, Refs);
+
                 stub.addURLs(new ArrayList<>(Refs)); //Inserir elementos na url queue
                 //mandar esses links ao barrel tmb. O barrel vai receber uma lista um lista de links e o link aonde eles sairam 
                 url=stub.getURL();

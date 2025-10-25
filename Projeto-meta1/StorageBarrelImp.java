@@ -1,6 +1,9 @@
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
+import java.rmi.Naming;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+
 
 public class StorageBarrelImp extends UnicastRemoteObject implements StorageBarrelInterface{
     // Índice invertido: palavra -> conjunto de URLs
@@ -15,6 +18,7 @@ public class StorageBarrelImp extends UnicastRemoteObject implements StorageBarr
         index = new HashMap<>();
         linkPages = new HashMap<>();
         urlPopularity = new HashMap<>();
+
     }
 
     @Override
