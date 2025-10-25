@@ -11,8 +11,6 @@ public class StorageBarrel{
             StorageBarrelImp barrel = new StorageBarrelImp();
             Registry registry = LocateRegistry.getRegistry("localhost", 1099);
             registry.rebind("Barrel", barrel);
-
-            
         }
         catch (Exception e) {
             System.out.println("null");
