@@ -56,6 +56,12 @@ public class StorageBarrelImp extends UnicastRemoteObject implements StorageBarr
         return sortedURLs;
     }
 
+    @Override
+    public Set<String> searchUrl(String Url) throws RemoteException {
+        for ()
+        return null
+    }
+
     // --- Teste simples ---
     public static void main(String[] args) throws RemoteException {
         StorageBarrelImp barrel = new StorageBarrelImp();
@@ -66,15 +72,6 @@ public class StorageBarrelImp extends UnicastRemoteObject implements StorageBarr
 
 
         
-        // Simula downloaders adicionando palavras
-        barrel.addWordToStructure("universidade", "http://www.uc.pt");
-        barrel.addWordToStructure("universidade", "https://en.wikipedia.org/wiki/University_of_Coimbra");
-        barrel.addWordToStructure("coimbra", "https://en.wikipedia.org/wiki/University_of_Coimbra");
-        barrel.addWordToStructure("Portugal", "http://www.uc.pt");
-        barrel.addWordToStructure("Brasil", "http://www.uc.pt");
-
-        // Pesquisa
-        System.out.println("Busca por ['universidade']: " + barrel.returnSearchResult(Arrays.asList("universidade")));
-        System.out.println("Busca por ['universidade', 'coimbra']: " + barrel.returnSearchResult(Arrays.asList("universidade", "coimbra")));
+        
     }
 }
