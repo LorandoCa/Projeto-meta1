@@ -7,68 +7,56 @@ import java.util.*;
 public class ClientImp extends UnicastRemoteObject implements Client_interface {
 
     List<String> topTen;
+    static String nome;
     
-
-
-
-    ClientImp() throws RemoteException {super();}
-       
-
-    @Override
-    public void updateStatistics(List<String> topTenUpdate){//falta verificar barrels ativos e o tempo medio de pesquisa
-        this.topTen= topTenUpdate;
-    }
-
-//Interface implemetnation end
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//METHODS
-
-
-    public void subscribe(Gateway_interface gateway_stub){
-        try{
-            ClientImp client= new ClientImp();
-            gateway_stub.subscribe(client);
-        }catch(Exception e){
-            System.out.println("Exception in main: " + e); 
-        }
-    } //Criar uma referencia e enviar a gateway, para fazer callback de estatisticas periodicamente
-    //Uma thread por cliente a subscrever
-
-
-    public void indexNewURL(String url, Gateway_interface gateway_stub){
-        try {
-
-            gateway_stub.addURL(url);
-        } catch (Exception e) {
-
-            e.printStackTrace();
-        }
-        
-    }
-
-    public List<String> pesquisa(String words){//or URL if client wants to execute the 5th functionality
-        
-        return null;
-    } 
-
     
-
-    public String statistic(){
-
-        //Deve ser resolvido pela gateway
-
-        return null;
-    }
-
-    public static void main(String[] args) {
-        Gateway_interface gateway_stub;
-        Scanner scanner = new Scanner(System.in);
-        //gateway interface setup
-        try {
-            gateway_stub = (Gateway_interface)Naming.lookup("Gateway");
-            //subscribe() here 
-        
-
+    
+        ClientImp() throws RemoteException {super();}
+           
+    
+        @Override
+        public void updateStatistics(List<String> topTenUpdate){//falta verificar barrels ativos e o tempo medio de pesquisa
+            this.topTen= topTenUpdate;
+        }
+    
+    //Interface implemetnation end
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //METHODS
+    
+    
+        public static String subscribe(Gateway_interface gateway_stub){
+            String res= null;
+            try{
+                ClientImp client= new ClientImp();
+                res= gateway_stub.subscribe(client);
+            }catch(Exception e){
+                System.out.println("Exception in main: " + e); 
+            }
+    
+            return res;
+        } //Criar uma referencia e enviar a gateway, para fazer callback de estatisticas periodicamente
+        //Uma thread por cliente a subscrever
+    
+    
+        public static void indexNewURL(String url, Gateway_interface gateway_stub){
+            try {
+    
+                gateway_stub.addURL(url);
+            } catch (Exception e) {
+    
+                e.printStackTrace();
+            }
+            
+        }
+    
+    
+        public static void main(String[] args) {
+            Gateway_interface gateway_stub;
+            Scanner scanner = new Scanner(System.in);
+            //gateway interface setup
+            try {
+                gateway_stub = (Gateway_interface)Naming.lookup("Gateway");
+                nome=subscribe(gateway_stub);
 
 
             while(true){
@@ -87,13 +75,9 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
 
                 switch (option) {
                 case 1:
-                    System.out.println("Escreva a sua URL\n");
+                    System.out.println("Escreva a sua URL");
                     String url = scanner.nextLine(); //Possivel verificacao do formato para confirmar que é uma URL
-                    try {
-                        gateway_stub.addURL(url);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    indexNewURL(url,gateway_stub);
                     
                     break;
                 

@@ -17,7 +17,7 @@ public interface Gateway_interface extends Remote {
 
     public String statistics() throws RemoteException;
 
-    public void subscribe(Client_interface c) throws RemoteException; 
+    public String subscribe(Client_interface c) throws RemoteException; 
     
     public  void collback() throws RemoteException; 
 }

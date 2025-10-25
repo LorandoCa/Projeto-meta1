@@ -15,6 +15,8 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
 
     StorageBarrelInterface stub_barrel;
 
+    int client_counter=1;
+    String client_name= new String();
 
     Map<String, Integer> searchFreq= new HashMap<>();
 
@@ -24,8 +26,6 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
         } catch (Exception e) {
             e.printStackTrace();
         }
-       
-
     }
 
     @Override
@@ -48,7 +48,6 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
     @Override
     public synchronized Void addURL(String new_URL) {
         if(URL_queue.contains(new_URL) || visited.contains(new_URL)) return null;
-
         URL_queue.add(new_URL);
         return null;
     }
@@ -105,9 +104,6 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
   
     }
 
-
-
-
     @Override
     public String statistics(){
         List<String> chaves = new ArrayList<>(searchFreq.keySet());
@@ -133,27 +129,24 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
     }
 
     @Override
-    public void subscribe(Client_interface c){
-        clients.add(c); 
+    public String subscribe(Client_interface c){ //altere: retornar nome de cliente
+        clients.add(c);
+        return String.format("Client%d", client_counter++);    
     }
 
-
+//End o interface implementation
+//=======================================================================================================
 
     public static void main(String[] args) {
-
         try {
-
-            
-            GatewayImp obj = new GatewayImp();
-            Naming.rebind("Gateway", obj);
-
-    
-
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        } catch (MalformedURLException e) {
+            GatewayImp server = new GatewayImp();
+            Naming.rebind("Gateway", server);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+
 }
+
+
