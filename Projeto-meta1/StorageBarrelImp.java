@@ -13,10 +13,20 @@ public class StorageBarrelImp extends UnicastRemoteObject implements StorageBarr
 
     private Map<String, Integer> urlPopularity;
 
+    static Gateway_interface gateway;
+
+    static String nome;
+
     public StorageBarrelImp() throws RemoteException {
         index = new HashMap<>();
         linkPages = new HashMap<>();
         urlPopularity = new HashMap<>();
+        try {
+            gateway= (Gateway_interface)Naming.lookup("Gateway");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
 
     }
 
@@ -58,21 +68,21 @@ public class StorageBarrelImp extends UnicastRemoteObject implements StorageBarr
             int popB = urlPopularity.getOrDefault(b, 0);
             return popB - popA; // ordem decrescente
         });
+        System.out.println(sortedURLs);
         
         return sortedURLs;
     }
 
-    // --- Teste simples ---
 
     public static void main(String[] args) {
 
         try{
-            //LocateRegistry.createRegistry(1099); // cria o registry na porta 1099
+           
             System.out.println("RMI registry iniciado na porta 1099");
-            
-            StorageBarrelImp barrel = new StorageBarrelImp();
-            Naming.rebind("Barrel2", barrel);
 
+            StorageBarrelImp barrel = new StorageBarrelImp();
+            Naming.rebind("Barrel1", barrel);
+            nome= gateway.subscribe(barrel);
             
         }
         catch (Exception e) {

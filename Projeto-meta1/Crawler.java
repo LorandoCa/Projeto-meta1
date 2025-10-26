@@ -16,7 +16,7 @@ public static void main(String args[]) {
     //Setup
     try {
         Gateway_interface stub = (Gateway_interface) Naming.lookup("Gateway");
-        StorageBarrelInterface stub_barrel= (StorageBarrelInterface) Naming.lookup("Barrel2");
+        StorageBarrelInterface stub_barrel= (StorageBarrelInterface) Naming.lookup("Barrel1");
         //Setup end
 
         String url = args[0];
