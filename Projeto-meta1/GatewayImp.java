@@ -1,9 +1,7 @@
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.net.MalformedURLException;
 import java.rmi.Naming;
-import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 
 
@@ -13,16 +11,22 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
     Set <String> visited= new HashSet<>();
     List<Client_interface> clients= new ArrayList<>();//do callback to all the stored references
 
-    StorageBarrelInterface stub_barrel;
+    StorageBarrelInterface stub_barrel1,stub_barrel2;
+    Map<StorageBarrelInterface, Integer> barrelCoresp;
 
     int client_counter=1;
     String client_name= new String();
 
     Map<String, Integer> searchFreq= new HashMap<>();
 
+    
     public GatewayImp() throws RemoteException {super();
         try {
-            stub_barrel= (StorageBarrelInterface) Naming.lookup("Barrel");
+            stub_barrel1= (StorageBarrelInterface) Naming.lookup("Barrel1");
+            stub_barrel2= (StorageBarrelInterface) Naming.lookup("Barrel2");
+            barrelCoresp= new HashMap<>(); 
+            barrelCoresp.put(stub_barrel1, 0);
+            barrelCoresp.put(stub_barrel2, 0);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -57,14 +61,39 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
         List<String> result=null;
         String[] words= word.split(" ");
         List <String> wordss= new ArrayList<>(Arrays.asList(words));
-        
-        try {
-            result= stub_barrel.returnSearchResult(wordss);
-            System.out.println(result);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
+        //Load balancing
+        StorageBarrelInterface barrel;
+       if(barrelCoresp.get(stub_barrel1)>barrelCoresp.get(stub_barrel2)){
+            barrel= stub_barrel2;          
+       }else{
+            barrel= stub_barrel1;
+       }
+       //end
+       boolean flag= true;
+       while(flag){
+            try {
+                flag= false;
+                result= barrel.returnSearchResult(wordss);
+                System.out.println(result);
+
+            } catch (java.rmi.ConnectException e) {
+
+                System.out.println("Barrel desconectado. Tentando outro...");
+                if(barrel== stub_barrel1) barrel=stub_barrel2;
+                else barrel= stub_barrel1;
+                flag= true;
+
+            } catch (java.rmi.RemoteException e) {
+
+                System.out.println("Erro remoto ao contactar Barrel.");
+                e.printStackTrace();
+
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        barrelCoresp.put(barrel, barrelCoresp.get(barrel)+1);
         searchFreq.put(word, searchFreq.getOrDefault(word, 0) + 1);
 
         
@@ -149,6 +178,7 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
         try {
             GatewayImp server = new GatewayImp();
             Naming.rebind("Gateway", server);
+            //java -Djava.rmi.server.hostname=192.168.176.1 MeuServidor: definir um ip para um server
         } catch (Exception e) {
             e.printStackTrace();
         }

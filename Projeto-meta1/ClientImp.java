@@ -50,12 +50,14 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
         }
     
     
+        //Pode se fazer caching de pesquisas de cada cliente
         public static void main(String[] args) {
             Gateway_interface gateway_stub;
             Scanner scanner = new Scanner(System.in);
             //gateway interface setup
             try {
                 gateway_stub = (Gateway_interface)Naming.lookup("Gateway");
+                //(Gateway_interface) Naming.lookup("rmi://192.168.176.1:1099/Gateway"); achar um server num ip especifico 
                 nome=subscribe(gateway_stub);
 
 

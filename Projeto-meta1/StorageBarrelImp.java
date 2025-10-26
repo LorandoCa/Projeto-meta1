@@ -67,11 +67,11 @@ public class StorageBarrelImp extends UnicastRemoteObject implements StorageBarr
     public static void main(String[] args) {
 
         try{
-            LocateRegistry.createRegistry(1099); // cria o registry na porta 1099
+            //LocateRegistry.createRegistry(1099); // cria o registry na porta 1099
             System.out.println("RMI registry iniciado na porta 1099");
             
             StorageBarrelImp barrel = new StorageBarrelImp();
-            Naming.rebind("Barrel", barrel);
+            Naming.rebind("Barrel2", barrel);
 
             
         }
