@@ -89,16 +89,25 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
     @Override
     public void collback() {
         List<String> listaPesq = new ArrayList<>(searchFreq.keySet());
-        for(int i = 0; i < this.clients.size(); ++i) {
-           try {
-              ((Client_interface)this.clients.get(i)).updateStatistics(new ArrayList<>(listaPesq.subList(0, Math.min(10, listaPesq.size()))));
-           }
-            catch (NoSuchObjectException a){ //unsubscribe
-                clients.remove(i);
-                
-            }catch (Exception e) {
-              e.printStackTrace();
-           }
+
+
+
+        Iterator<Client_interface> it = clients.iterator(); //Para q a alteracao da lista nao afete a iteracao sobre ela
+
+        while (it.hasNext()) {
+            Client_interface client = it.next();
+            try {
+                ((Client_interface)client).updateStatistics(new ArrayList<>(listaPesq.subList(0, Math.min(10, listaPesq.size()))));
+            } catch (java.rmi.ConnectException e) {
+                System.out.println("Cliente desconectado. Removendo da lista...");
+                it.remove(); // o cliente caiu
+            } catch (java.rmi.RemoteException e) {
+                System.out.println("Erro remoto ao contactar cliente. Removendo...");
+                e.printStackTrace();
+                it.remove();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
   
     }
