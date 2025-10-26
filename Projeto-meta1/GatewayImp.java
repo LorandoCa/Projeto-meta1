@@ -89,10 +89,9 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
     @Override
     public void collback() {
         List<String> listaPesq = new ArrayList<>(searchFreq.keySet());
-  
         for(int i = 0; i < this.clients.size(); ++i) {
            try {
-              ((Client_interface)this.clients.get(i)).updateStatistics(listaPesq.subList(0, 10));
+              ((Client_interface)this.clients.get(i)).updateStatistics(new ArrayList<>(listaPesq.subList(0, Math.min(10, listaPesq.size()))));
            }
             catch (NoSuchObjectException a){ //unsubscribe
                 clients.remove(i);

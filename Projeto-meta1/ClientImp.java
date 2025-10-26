@@ -6,7 +6,7 @@ import java.util.*;
 
 public class ClientImp extends UnicastRemoteObject implements Client_interface {
 
-    List<String> topTen;
+    static List<String> topTen;
     static String nome;
     
     
@@ -16,7 +16,7 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
     
         @Override
         public void updateStatistics(List<String> topTenUpdate){//falta verificar barrels ativos e o tempo medio de pesquisa
-            this.topTen= topTenUpdate;
+            topTen= topTenUpdate;
         }
     
     //Interface implemetnation end
@@ -109,9 +109,9 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
 
                     case 4:
                         try {
-                            String estatisticas= gateway_stub.statistics();
                             System.out.println("--------------------STATISTICS-----------------------------");
-                            System.out.printf("%s\n", estatisticas);
+                            System.out.println(topTen);
+                            System.out.println("\n");
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
