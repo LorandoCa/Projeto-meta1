@@ -16,7 +16,7 @@ public static void main(String args[]) {
     //Setup
     try {
         Gateway_interface stub = (Gateway_interface) Naming.lookup("Gateway");
-        StorageBarrelInterface stub_barrel= (StorageBarrelInterface) Naming.lookup("Barrel");
+        StorageBarrelInterface stub_barrel= (StorageBarrelInterface) Naming.lookup("Barrel2");
         //Setup end
 
         String url = args[0];
@@ -43,7 +43,7 @@ public static void main(String args[]) {
                     Refs.add(link.attr("abs:href"));
                     
                 }
-                
+
                 stub_barrel.addLinks(url, Refs);
 
                 stub.addURLs(new ArrayList<>(Refs)); //Inserir elementos na url queue

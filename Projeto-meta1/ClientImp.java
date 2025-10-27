@@ -6,7 +6,7 @@ import java.util.*;
 
 public class ClientImp extends UnicastRemoteObject implements Client_interface {
 
-    List<String> topTen;
+    static List<String> topTen;
     static String nome;
     
     
@@ -16,7 +16,7 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
     
         @Override
         public void updateStatistics(List<String> topTenUpdate){//falta verificar barrels ativos e o tempo medio de pesquisa
-            this.topTen= topTenUpdate;
+            topTen= topTenUpdate;
         }
     
     //Interface implemetnation end
@@ -50,12 +50,14 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
         }
     
     
+        //Pode se fazer caching de pesquisas de cada cliente
         public static void main(String[] args) {
             Gateway_interface gateway_stub;
             Scanner scanner = new Scanner(System.in);
             //gateway interface setup
             try {
                 gateway_stub = (Gateway_interface)Naming.lookup("Gateway");
+                //(Gateway_interface) Naming.lookup("rmi://192.168.176.1:1099/Gateway"); achar um server num ip especifico 
                 nome=subscribe(gateway_stub);
 
 
@@ -109,9 +111,9 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
 
                     case 4:
                         try {
-                            String estatisticas= gateway_stub.statistics();
                             System.out.println("--------------------STATISTICS-----------------------------");
-                            System.out.printf("%s\n", estatisticas);
+                            System.out.println(topTen);
+                            System.out.println("\n");
                         } catch (Exception e) {
                             e.printStackTrace();
                         }

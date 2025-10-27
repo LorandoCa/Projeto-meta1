@@ -82,9 +82,11 @@ public Set<String> searchUrl(String url) throws RemoteException {
     barrel.addWordToStructure(Set.of("universidade", "lisboa"), "http://siteB.com");
     barrel.addWordToStructure(Set.of("portugal", "turismo"), "http://siteC.com");
 
+
     // 2️⃣ Adicionar links entre páginas
     barrel.addLinks("http://siteA.com", Set.of("http://siteB.com", "http://siteC.com"));
     barrel.addLinks("http://siteB.com", Set.of("http://siteC.com"));
+
 
     // 3️⃣ Exibir mapa de popularidade
     System.out.println("📊 Popularidade das páginas:");
