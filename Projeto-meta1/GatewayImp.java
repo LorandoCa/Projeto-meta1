@@ -177,6 +177,7 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
             GatewayImp server = new GatewayImp();
             Naming.rebind("Gateway", server);
             //java -Djava.rmi.server.hostname=192.168.176.1 MeuServidor: definir um ip para um server
+
         } catch (Exception e) {
             e.printStackTrace();
         }

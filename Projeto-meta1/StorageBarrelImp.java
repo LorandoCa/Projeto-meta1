@@ -1,8 +1,8 @@
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
+
 import java.rmi.Naming;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
 
 
 public class StorageBarrelImp extends UnicastRemoteObject implements StorageBarrelInterface{
@@ -72,7 +72,7 @@ public class StorageBarrelImp extends UnicastRemoteObject implements StorageBarr
         
         return sortedURLs;
     }
-
+    
 
     public static void main(String[] args) {
 
@@ -83,12 +83,14 @@ public class StorageBarrelImp extends UnicastRemoteObject implements StorageBarr
             StorageBarrelImp barrel = new StorageBarrelImp();
             Naming.rebind("Barrel1", barrel);
             nome= gateway.subscribe(barrel);
-            
-        }
-        catch (Exception e) {
-            System.out.println("null");
-            e.printStackTrace();
-        }
+
+            MulticastHandler t= new MulticastHandler(barrel);
+            t.start();
+            }
+            catch (Exception e) {
+                System.out.println("null");
+                e.printStackTrace();
+            }
     }
 }
 
