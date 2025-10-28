@@ -72,6 +72,18 @@ public class StorageBarrelImp extends UnicastRemoteObject implements StorageBarr
         
         return sortedURLs;
     }
+
+    @Override
+    public Set<String> searchUrl(String url) throws RemoteException {
+        Set<String> links = new HashSet<>();
+        
+        linkPages.forEach((fromUrl, toUrls) -> {
+            if (toUrls.contains(url)) {
+                links.add(fromUrl);
+            }
+        });
+        return links;
+    }
     
 
     public static void main(String[] args) {

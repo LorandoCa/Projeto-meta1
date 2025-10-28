@@ -5,6 +5,7 @@ import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketTimeoutException;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 
@@ -20,6 +21,8 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
     static Gateway_interface gateway;
 
     static String nome;
+
+    static int ref=0;
 
     public MainStorageBarrel() throws RemoteException {
         index = new HashMap<>();
@@ -78,6 +81,18 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
         
         return sortedURLs;
     }
+
+    @Override
+    public Set<String> searchUrl(String url) throws RemoteException {
+        Set<String> links = new HashSet<>();
+        
+        linkPages.forEach((fromUrl, toUrls) -> {
+            if (toUrls.contains(url)) {
+                links.add(fromUrl);
+            }
+        });
+        return links;
+    }
     
     //Atualizar index
     public void multicast(Set<String> words, String url){
@@ -90,6 +105,7 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
             Map<String, Object> data = new HashMap<>();
             data.put("words", words);
             data.put("url", url);
+            data.put("ref_num", ref); //num de ref para filtragem de duplicados
 
             // Serializa o objeto para bytes
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -99,17 +115,37 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
             byte[] buffer = baos.toByteArray();
             // Cria o pacote e envia
 
-            //Adicionar um numero de referencia para fazer filtragem de duplicados XXXX
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, port);
-            socket.send(packet);
-
-            //Esperar ACK. Define um limite de espera para voltar a enviar XXXXXX
-            socket.receive(packet);
             
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, port);
+            envio(packet, socket);
         }catch(Exception e){
             e.printStackTrace();
         }
     }
+
+    public void envio(DatagramPacket packet, DatagramSocket socket){ //metodo auxiliar
+        while(true){
+            try {
+                socket.send(packet);
+                //Esperar ACK. Define um limite de espera para voltar a enviar XXXXXX
+                socket.setSoTimeout(3000);
+                byte[] ackBuffer = new byte[256];
+                DatagramPacket ackPacket = new DatagramPacket(ackBuffer, ackBuffer.length);
+                socket.receive(ackPacket);
+                String ackMessage = new String(ackPacket.getData(), 0, ackPacket.getLength());
+                if(ackMessage.equals("ACK")) break;
+
+            } catch (SocketTimeoutException e) {
+                e.printStackTrace();
+
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            
+        }
+
+    }
+
 
     //Atualizar relacoes de Urls
     public void multicast(String fromUrl, Set<String> toUrls){
@@ -132,7 +168,7 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
             // Cria o pacote e envia
 
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, port);
-            socket.send(packet);
+            envio(packet, socket);
             
         }catch(Exception e){
             e.printStackTrace();

@@ -19,8 +19,13 @@ public class MulticastHandler extends Thread {
     NetworkInterface netIf ;
     SocketAddress groupSockAddr ;
     StorageBarrelImp barrel;
+
+
+    int last_ref_num;
+
     MulticastHandler(StorageBarrelImp barrel){
         this.barrel= barrel;
+        last_ref_num= -1;
         // TODO Auto-generated method stub
         groupAddress = "230.0.0.0";
         port = 4446;
@@ -65,6 +70,21 @@ public class MulticastHandler extends Thread {
     
                     // Caso 1: contém "words" e "url"
                     if (map.containsKey("words") && map.containsKey("url")) {
+                        Object a = map.get("ref_num");
+
+                        if((int)a <= last_ref_num ){
+                            byte[] buf= new byte[256];
+                            buf= "ACK".getBytes();
+                            DatagramPacket ackPacket = new DatagramPacket(
+                                buf,
+                                "ACK".length(),
+                                packet.getAddress(),
+                                packet.getPort()
+                            );
+                            socket.send(ackPacket);
+                        }
+                        last_ref_num= (int)a;
+
                         Object w = map.get("words");
                         Object u = map.get("url");
     
@@ -100,10 +120,10 @@ public class MulticastHandler extends Thread {
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
-                //mandar ACk
-                //Fazer codigo da parte do outro barrel q vai fazer envios multicast
+                //mandar ACk X
+                //Fazer codigo da parte do outro barrel q vai fazer envios multicast X
                 //Fazer um envio completo quando um barrel se inscreve
-                //Fazer filtragem de duplicados, usando uma ref para cada operacao da parte do barrel q recebe
+                //Fazer filtragem de duplicados, usando uma ref para cada operacao da parte do barrel q recebe X
                 //
             } catch (Exception e) {
                 e.printStackTrace();
