@@ -16,13 +16,13 @@ public static void main(String args[]) {
     //Setup
     try {
         Gateway_interface stub = (Gateway_interface) Naming.lookup("Gateway");
-        StorageBarrelInterface stub_barrel= (StorageBarrelInterface) Naming.lookup("Barrel1");
+        StorageBarrelInterface stub_barrel= (StorageBarrelInterface) Naming.lookup("Barrel1"); //Todos os crawlers comunicam com esse barrel
         //Setup end
 
         String url = args[0];
         try {
             while(url!=null){
-                System.err.printf("%s\n", url);
+                System.out.printf("%s\n", url);
                 Document doc = Jsoup.connect(url).get();
                 StringTokenizer tokens = new StringTokenizer(doc.text());
                 int countTokens = 0;
@@ -34,6 +34,8 @@ public static void main(String args[]) {
                 }
 
                 //Mandar ao Barrel a lista de palavras e o URL atual
+
+                //Fazer uma thread para essa adicionar isso 
                 stub_barrel.addWordToStructure(words_indexed, url);
 
                 Elements links = doc.select("a[href]");
@@ -46,6 +48,8 @@ public static void main(String args[]) {
 
                 stub_barrel.addLinks(url, Refs);
 
+                //uma thread para esta funcao tambem
+                
                 stub.addURLs(new ArrayList<>(Refs)); //Inserir elementos na url queue
                 //mandar esses links ao barrel tmb. O barrel vai receber uma lista um lista de links e o link aonde eles sairam 
                 url=stub.getURL();

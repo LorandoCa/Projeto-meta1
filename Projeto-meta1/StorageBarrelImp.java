@@ -32,12 +32,12 @@ public class StorageBarrelImp extends UnicastRemoteObject implements StorageBarr
 
     @Override
     public synchronized void addWordToStructure(Set<String> word, String url) {
-        System.out.println(word);
         for (String words : word){
 
             index.computeIfAbsent(words,  k -> new HashSet<>()).add(url);
         }
         urlPopularity.putIfAbsent(url, 0); // garante que a URL existe no mapa
+        
     }
 
     @Override
@@ -46,6 +46,7 @@ public class StorageBarrelImp extends UnicastRemoteObject implements StorageBarr
         for (String to : toUrls) {
             urlPopularity.put(to, urlPopularity.getOrDefault(to, 0) + 1);
         }
+
     }
 
     @Override
@@ -68,7 +69,6 @@ public class StorageBarrelImp extends UnicastRemoteObject implements StorageBarr
             int popB = urlPopularity.getOrDefault(b, 0);
             return popB - popA; // ordem decrescente
         });
-        System.out.println(sortedURLs);
         
         return sortedURLs;
     }
@@ -93,7 +93,7 @@ public class StorageBarrelImp extends UnicastRemoteObject implements StorageBarr
             System.out.println("RMI registry iniciado na porta 1099");
 
             StorageBarrelImp barrel = new StorageBarrelImp();
-            Naming.rebind("Barrel1", barrel);
+            Naming.rebind("Barrel2", barrel);
             nome= gateway.subscribe(barrel);
 
             MulticastHandler t= new MulticastHandler(barrel);

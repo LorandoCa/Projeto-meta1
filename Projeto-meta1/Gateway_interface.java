@@ -22,4 +22,7 @@ public interface Gateway_interface extends Remote {
     public String subscribe(StorageBarrelInterface c) throws RemoteException; 
     
     public  void collback() throws RemoteException; 
+
+    public  Integer getBarrelNum() throws RemoteException; 
+
 }

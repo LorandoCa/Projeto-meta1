@@ -51,13 +51,15 @@ public class MulticastHandler extends Thread {
         while(true){
             try {
 
-                byte[] buffer = new byte[8192];
-                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+                byte[] data = new byte[8192];
+                DatagramPacket packet = new DatagramPacket(data, data.length);
                 socket.receive(packet);
-                
+                byte[] dados = packet.getData();
+                int length = packet.getLength();
                 //Enviar ACK 
                 //Guardar a ultima ref recebida para manter a caracteristica at most once
-                try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(packet.getData()))) {
+                try (ObjectInputStream ois = new ObjectInputStream(
+                    new ByteArrayInputStream(dados, 0, length))) {
     
                     Object obj = ois.readObject();
                     if (!(obj instanceof Map<?, ?> rawMap)) {
@@ -95,12 +97,30 @@ public class MulticastHandler extends Thread {
                             String url = (String) u;
 
                             barrel.addWordToStructure(words, url);
+                            System.out.println("1 done\n\n");
                         } else {
                             System.err.println("Tipos incompatíveis para 'words' ou 'url'");
                         }
                     }
                     // Caso 2: contém "fromUrl" e "toUrls"
                     else if (map.containsKey("fromUrl") && map.containsKey("toUrls")) {
+
+                        Object a = map.get("ref_num");
+
+                        if((int)a <= last_ref_num ){
+                            byte[] buf= new byte[256];
+                            buf= "ACK".getBytes();
+                            DatagramPacket ackPacket = new DatagramPacket(
+                                buf,
+                                "ACK".length(),
+                                packet.getAddress(),
+                                packet.getPort()
+                            );
+                            socket.send(ackPacket);
+                        }
+                        last_ref_num= (int)a;
+
+
                         Object f = map.get("fromUrl");
                         Object t = map.get("toUrls");
     
