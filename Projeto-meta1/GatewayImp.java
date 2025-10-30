@@ -164,7 +164,6 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
     @Override
     public String subscribe(StorageBarrelInterface b){
         barrels.add(b);
-        
         System.out.println("Adicionado com sucesso");
         return String.format("Barrel%d", barrel_counter++);
     }

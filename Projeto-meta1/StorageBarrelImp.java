@@ -1,6 +1,10 @@
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
-
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 
@@ -17,10 +21,28 @@ public class StorageBarrelImp extends UnicastRemoteObject implements StorageBarr
 
     static String nome;
 
+    @SuppressWarnings("unchecked")
     public StorageBarrelImp() throws RemoteException {
         index = new HashMap<>();
         linkPages = new HashMap<>();
         urlPopularity = new HashMap<>();
+
+        try{
+            File file = new File("MainStorageIndex.bin");
+            if (file.exists()){
+                ObjectInputStream ois = new ObjectInputStream(new FileInputStream("MainStorageIndex.bin"));
+                index = (Map<String, Set<String>>) ois.readObject();
+                ois.close();
+            }
+            file = new File("MainStorageLinks.bin");
+            if (file.exists()){
+                ObjectInputStream ois1 = new ObjectInputStream(new FileInputStream("MainStorageLinks.bin"));
+                linkPages= (Map<String, Set<String>>) ois1.readObject();
+                ois1.close();
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
         try {
             gateway= (Gateway_interface)Naming.lookup("Gateway");
         } catch (Exception e) {
@@ -30,6 +52,7 @@ public class StorageBarrelImp extends UnicastRemoteObject implements StorageBarr
 
     }
 
+
     @Override
     public synchronized void addWordToStructure(Set<String> word, String url) {
         for (String words : word){
@@ -37,8 +60,9 @@ public class StorageBarrelImp extends UnicastRemoteObject implements StorageBarr
             index.computeIfAbsent(words,  k -> new HashSet<>()).add(url);
         }
         urlPopularity.putIfAbsent(url, 0); // garante que a URL existe no mapa
-        
+
     }
+
 
     @Override
     public synchronized void addLinks(String fromUrl, Set<String> toUrls){

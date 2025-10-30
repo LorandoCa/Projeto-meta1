@@ -22,8 +22,16 @@ public static void main(String args[]) {
         String url = args[0];
         try {
             while(url!=null){
+                if (!url.endsWith(".html") ){
+                    url=stub.getURL();
+                    continue;
+                }
                 System.out.printf("%s\n", url);
-                Document doc = Jsoup.connect(url).get();
+                Document doc = Jsoup.connect(url)
+                        .userAgent("Mozilla/5.0 (compatible; MeuCrawler/1.0; +http://meusite.com)")
+                        .header("From", "seuemail@dominio.com") // opcional, indica contato
+                        .timeout(10_000) // timeout em ms
+                        .get();
                 StringTokenizer tokens = new StringTokenizer(doc.text());
                 int countTokens = 0;
 

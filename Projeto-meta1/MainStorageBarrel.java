@@ -1,6 +1,10 @@
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -25,10 +29,28 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
 
     static int ref=0;
 
+    @SuppressWarnings("unchecked")
     public MainStorageBarrel() throws RemoteException {
         index = new HashMap<>();
         linkPages = new HashMap<>();
         urlPopularity = new HashMap<>();
+        try{
+            File file = new File("MainStorageIndex.bin");
+            if (file.exists()){
+                ObjectInputStream ois = new ObjectInputStream(new FileInputStream("MainStorageIndex.bin"));
+                index = (Map<String, Set<String>>) ois.readObject();
+                ois.close();
+            }
+            file = new File("MainStorageLinks.bin");
+            if (file.exists()){
+                ObjectInputStream ois1 = new ObjectInputStream(new FileInputStream("MainStorageLinks.bin"));
+                linkPages= (Map<String, Set<String>>) ois1.readObject();
+                ois1.close();
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+
         try {
             gateway= (Gateway_interface)Naming.lookup("Gateway");
         } catch (Exception e) {
@@ -65,6 +87,13 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
         }
         System.out.println("Index updated");
         urlPopularity.putIfAbsent(url, 0); // garante que a URL existe no mapa
+
+        //backUp de dados para possiveis recuperações
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("MainStorageIndex.bin"))) {
+            oos.writeObject(index);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -92,6 +121,14 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
         for (String to : toUrls) {
             urlPopularity.put(to, urlPopularity.getOrDefault(to, 0) + 1);
         }
+
+        //backUp de dados para possiveis recuperações
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("MainStorageLinks.bin"))) {
+            oos.writeObject(index);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
     }
 
     @Override
@@ -163,8 +200,8 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
     public void envio(DatagramPacket packet, DatagramSocket socket){ //metodo auxiliar
         System.out.println("SENT\n\n");
         while(true){
-            //verificar tamanho de inscritos na gateway antes de continuar. pode ser que saiu
             try {
+                if(gateway.getBarrelNum()==1) break;
                 socket.send(packet);
                 //Esperar ACK. Define um limite de espera para voltar a enviar XXXXXX
                 socket.setSoTimeout(3000);
