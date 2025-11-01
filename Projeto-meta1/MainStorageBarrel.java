@@ -27,14 +27,16 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
 
     static String nome;
 
-    static int ref=0;
+    private Map<String,Integer> last_sender;
 
-    @SuppressWarnings("unchecked")
+    //@SuppressWarnings("unchecked")
     public MainStorageBarrel() throws RemoteException {
         index = new HashMap<>();
         linkPages = new HashMap<>();
         urlPopularity = new HashMap<>();
-        try{
+        last_sender= new HashMap<>();
+
+        /*try{
             File file = new File("MainStorageIndex.bin");
             if (file.exists()){
                 ObjectInputStream ois = new ObjectInputStream(new FileInputStream("MainStorageIndex.bin"));
@@ -49,10 +51,12 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
             }
         }catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
 
         try {
             gateway= (Gateway_interface)Naming.lookup("Gateway");
+            StorageBarrelInterface S= gateway.getBarrel();
+            if(S!= null) index= S.reboot();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -61,8 +65,11 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
     }
 
     @Override
-    public synchronized void addWordToStructure(Set<String> words, String url) {
+    public synchronized int addWordToStructure(Set<String> words, String url, String Crawler, int ref) {
         System.out.println(words.size());
+        //Se eu guardar o valor da ultima referencia dos dois crawlers, posso fazer filtragem corretamente
+        if(last_sender.containsKey(Crawler) && last_sender.get(Crawler)<=ref) return ref;
+
         try {
             if( gateway.getBarrelNum() > 1){
                 List<String> lista_aux= new ArrayList<>(words);
@@ -72,7 +79,11 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
                 while (pos < tam) {
                     int end = Math.min(pos + chunkSize, tam);
                     Set<String> chunk = new HashSet<>(lista_aux.subList(pos, end));
-                    multicast(chunk,url);
+
+                    last_sender.put(Crawler,ref);
+
+                    multicast(chunk,url,Crawler,ref);
+                    ref++; //retornar esse valor na funcao para o crawler atualizar a sua prox ref disponivel
                     pos = end;
                 }
             }
@@ -88,27 +99,27 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
         System.out.println("Index updated");
         urlPopularity.putIfAbsent(url, 0); // garante que a URL existe no mapa
 
-        //backUp de dados para possiveis recuperações
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("MainStorageIndex.bin"))) {
-            oos.writeObject(index);
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+       
+        return ref;
     }
 
     @Override
-    public synchronized void addLinks(String fromUrl, Set<String> toUrls){
+    public synchronized int addLinks(String fromUrl, Set<String> toUrls, String Crawler, int ref){
+        if(last_sender.containsKey(Crawler) && last_sender.get(Crawler)<=ref) return ref;
         try {
-            
             if( gateway.getBarrelNum() > 1){
                 List<String> lista_aux= new ArrayList<>(toUrls);
                 int tam= toUrls.size();
-                int chunkSize = 30;
+                int chunkSize = 50;
                 int pos=0;
                 while (pos < tam) {
                     int end = Math.min(pos + chunkSize, tam);
                     Set<String> chunk = new HashSet<>(lista_aux.subList(pos, end));
-                    multicast(fromUrl, chunk);
+
+                    last_sender.put(Crawler,ref);
+
+                    multicast(fromUrl,chunk,Crawler,ref);
+                    ref++; //retornar esse valor na funcao para o crawler atualizar a sua prox ref disponivel
                     pos = end;
                 }
             }
@@ -122,13 +133,7 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
             urlPopularity.put(to, urlPopularity.getOrDefault(to, 0) + 1);
         }
 
-        //backUp de dados para possiveis recuperações
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("MainStorageLinks.bin"))) {
-            oos.writeObject(index);
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-
+        return ref;
     }
 
     @Override
@@ -169,7 +174,7 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
     }
     
     //Atualizar index
-    public void multicast(Set<String> words, String url){
+    public void multicast(Set<String> words, String url,String Crawler, int ref){
         String groupAddress = "230.0.0.0"; // endereço multicast (faixa 224.0.0.0–239.255.255.255)
         int port = 4446;
 
@@ -180,6 +185,7 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
             data.put("words", words);
             data.put("url", url);
             data.put("ref_num", ref); //num de ref para filtragem de duplicados
+            data.put("Crawler", Crawler); //Crawler para filtragem de duplicados
 
             // Serializa o objeto para bytes
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -219,7 +225,7 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
             
 
             } catch (SocketTimeoutException e) {
-                //e.printStackTrace();
+                e.printStackTrace();
 
             }catch(Exception e){
                 e.printStackTrace();
@@ -231,7 +237,7 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
 
 
     //Atualizar relacoes de Urls
-    public void multicast(String fromUrl, Set<String> toUrls){
+    public void multicast(String fromUrl, Set<String> toUrls, String Crawler, int ref){
         String groupAddress = "230.0.0.0"; // endereço multicast (faixa 224.0.0.0–239.255.255.255)
         int port = 4446;
 
@@ -242,7 +248,8 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
             data.put("fromUrl", fromUrl);
             data.put("toUrls", toUrls);
             data.put("ref_num",ref );
-            ref++;
+            data.put("Crawler", Crawler); //Crawler para filtragem de duplicados
+
 
             // Serializa o objeto para bytes
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -260,6 +267,11 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
         }
     }
 
+    @Override
+    public Map<String, Set<String>> reboot() throws RemoteException {
+        return index;
+    }
+
     public static void main(String[] args) {
 
         try{
@@ -267,14 +279,22 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
             System.out.println("RMI registry iniciado na porta 1099");
 
             MainStorageBarrel barrel = new MainStorageBarrel();
-            Naming.rebind("Barrel1", barrel);
             nome= gateway.subscribe(barrel);
+            Naming.rebind(nome, barrel);
+            System.out.printf("Eu sou %s\n", nome);
 
+
+            MulticastHandler t= new MulticastHandler(barrel);
+            t.start();
             }
             catch (Exception e) {
-                System.out.println("null");
                 e.printStackTrace();
             }
     }
+
+   
+
+   
+
 }
 

@@ -25,4 +25,6 @@ public interface Gateway_interface extends Remote {
 
     public  Integer getBarrelNum() throws RemoteException; 
 
+    public StorageBarrelInterface getBarrel() throws RemoteException;
+
 }

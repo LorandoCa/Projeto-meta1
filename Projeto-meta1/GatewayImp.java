@@ -173,6 +173,14 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
         return barrels.size();
     }
 
+    @Override
+    public StorageBarrelInterface getBarrel(){ //fixando o numero de barrels a 2
+        Random r= new Random();
+        if(barrels.size()>1) return barrels.get(r.nextInt(1));
+        if(barrels.size()==0) return null;
+        return barrels.get(0);
+    }
+
 //End o interface implementation
 //=======================================================================================================
 

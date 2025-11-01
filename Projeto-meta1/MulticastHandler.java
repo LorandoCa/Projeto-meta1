@@ -18,14 +18,10 @@ public class MulticastHandler extends Thread {
     InetAddress group ;
     NetworkInterface netIf ;
     SocketAddress groupSockAddr ;
-    StorageBarrelImp barrel;
+    MainStorageBarrel barrel;
 
-
-    int last_ref_num;
-
-    MulticastHandler(StorageBarrelImp barrel){
+    MulticastHandler(MainStorageBarrel barrel){
         this.barrel= barrel;
-        last_ref_num= -1;
         // TODO Auto-generated method stub
         groupAddress = "230.0.0.0";
         port = 4446;
@@ -34,6 +30,7 @@ public class MulticastHandler extends Thread {
             this.socket = new MulticastSocket(port);
             group = InetAddress.getByName(groupAddress);
             netIf = NetworkInterface.getByInetAddress(InetAddress.getLocalHost());
+            System.out.println(InetAddress.getLocalHost());
             groupSockAddr = new InetSocketAddress(group, port);
 
             // Entrar no grupo multicast (novo método)
@@ -49,11 +46,19 @@ public class MulticastHandler extends Thread {
     @Override
     public void run() {
         while(true){
+            
             try {
-
                 byte[] data = new byte[8192];
+
                 DatagramPacket packet = new DatagramPacket(data, data.length);
+
                 socket.receive(packet);
+                System.out.println("passei1");
+                /* 
+                if((InetAddress.getLocalHost()).equals(packet.getAddress())){
+                    continue;
+                }*/
+                System.out.println("passei");
                 byte[] dados = packet.getData();
                 int length = packet.getLength();
                 //Enviar ACK 
@@ -63,40 +68,35 @@ public class MulticastHandler extends Thread {
     
                     Object obj = ois.readObject();
                     if (!(obj instanceof Map<?, ?> rawMap)) {
-                        System.err.println("Objeto recebido não é um Map!");
+                        System.out.println("Objeto recebido não é um Map!");
                         continue;
                     }
-    
+                    
                     // Fazemos a conversão genérica
                     Map<?, ?> map = rawMap;
     
                     // Caso 1: contém "words" e "url"
                     if (map.containsKey("words") && map.containsKey("url")) {
                         Object a = map.get("ref_num");
-
-                        if((int)a <= last_ref_num ){
-                            byte[] buf= new byte[256];
-                            buf= "ACK".getBytes();
-                            DatagramPacket ackPacket = new DatagramPacket(
-                                buf,
-                                "ACK".length(),
-                                packet.getAddress(),
-                                packet.getPort()
-                            );
-                            socket.send(ackPacket);
-                        }
-                        last_ref_num= (int)a;
-
+                        Object c= map.get("Crawler");
+                        
+                        
                         Object w = map.get("words");
                         Object u = map.get("url");
     
                         if (w instanceof Set<?> && u instanceof String) {
+                           
                             // Converte com segurança
                             @SuppressWarnings("unchecked")
                             Set<String> words = (Set<String>) w;
                             String url = (String) u;
+                            
+                            byte[] buffer= "ACK".getBytes();
+                            // Cria o pacote e envia
+                            DatagramPacket ackpack = new DatagramPacket(buffer, buffer.length, packet.getAddress(), packet.getPort());
+                            socket.send(ackpack);
 
-                            barrel.addWordToStructure(words, url);
+                            barrel.addWordToStructure(words, url,(String)c, (int)a);
                             System.out.println("1 done\n\n");
                         } else {
                             System.err.println("Tipos incompatíveis para 'words' ou 'url'");
@@ -106,20 +106,7 @@ public class MulticastHandler extends Thread {
                     else if (map.containsKey("fromUrl") && map.containsKey("toUrls")) {
 
                         Object a = map.get("ref_num");
-
-                        if((int)a <= last_ref_num ){
-                            byte[] buf= new byte[256];
-                            buf= "ACK".getBytes();
-                            DatagramPacket ackPacket = new DatagramPacket(
-                                buf,
-                                "ACK".length(),
-                                packet.getAddress(),
-                                packet.getPort()
-                            );
-                            socket.send(ackPacket);
-                        }
-                        last_ref_num= (int)a;
-
+                        Object c= map.get("Crawler");
 
                         Object f = map.get("fromUrl");
                         Object t = map.get("toUrls");
@@ -129,7 +116,12 @@ public class MulticastHandler extends Thread {
                             Set<String> toUrls = (Set<String>) t;
                             String fromUrl = (String) f;
 
-                            barrel.addLinks(fromUrl, toUrls); //Atualizacao de barrel
+                            byte[] buffer= "ACK".getBytes();
+                            // Cria o pacote e envia
+                            DatagramPacket ackpack = new DatagramPacket(buffer, buffer.length, packet.getAddress(), packet.getPort());
+                            socket.send(ackpack);
+
+                            barrel.addLinks(fromUrl, toUrls,(String)c, (int)a); //Atualizacao de barrel
                         } else {
                             System.err.println("Tipos incompatíveis para 'fromUrl' ou 'toUrls'");
                         }
