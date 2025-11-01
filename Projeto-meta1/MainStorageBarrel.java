@@ -54,7 +54,8 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
         }*/
 
         try {
-            gateway= (Gateway_interface)Naming.lookup("Gateway");
+            gateway= (Gateway_interface)Naming.lookup("rmi://192.168.183.150:1099/Gateway");
+            System.out.println("aquiiii");
             StorageBarrelInterface S= gateway.getBarrel();
             if(S!= null) index= S.reboot();
         } catch (Exception e) {
@@ -279,6 +280,7 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
             System.out.println("RMI registry iniciado na porta 1099");
 
             MainStorageBarrel barrel = new MainStorageBarrel();
+            
             nome= gateway.subscribe(barrel);
             Naming.rebind(nome, barrel);
             System.out.printf("Eu sou %s\n", nome);
