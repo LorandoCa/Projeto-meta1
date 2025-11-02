@@ -77,7 +77,7 @@ public class MulticastHandler extends Thread {
     
                     // Caso 1: contém "words" e "url"
                     if (map.containsKey("words") && map.containsKey("url")) {
-                        Object a = map.get("ref_num");
+                      
                         Object c= map.get("Crawler");
                         
                         
@@ -108,7 +108,7 @@ public class MulticastHandler extends Thread {
                     // Caso 2: contém "fromUrl" e "toUrls"
                     else if (map.containsKey("fromUrl") && map.containsKey("toUrls")) {
 
-                        Object a = map.get("ref_num");
+                      
                         Object c= map.get("Crawler");
 
                         Object f = map.get("fromUrl");

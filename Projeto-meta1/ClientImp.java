@@ -3,18 +3,46 @@ import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
-
+/**
+ * Implementação do cliente para o sistema distribuído.
+ * 
+ * <p>Esta classe comunica com o {@code Gateway_interface} remoto via RMI,
+ * permitindo ao utilizador interagir com o sistema para indexar URLs,
+ * pesquisar palavras, consultar páginas relacionadas e visualizar estatísticas.
+ * 
+ * <p>O cliente também subscreve atualizações periódicas de estatísticas
+ * enviadas pelo gateway.
+ * 
+ * @author Pedro Ferreira, Lorando Ca
+ */
 public class ClientImp extends UnicastRemoteObject implements Client_interface {
+        /** Lista das 10 palavras mais pesquisadas. */
+        static List<String> topTen;
 
-    static List<String> topTen;
-    static List<String> BarrelsNames;
-    static String nome;
-    static long searchDur= 0;
+        /** Lista com os nomes dos Storage Barrels registados. */
+        static List<String> BarrelsNames;
+
+        /** Nome atribuído a este cliente pelo Gateway. */
+        static String nome;
+
+        /** Duração média das pesquisas, atualizada pelo Gateway. */
+        static long searchDur = 0;
     
     
-    
+        /**
+         * Construtor da classe ClientImp.
+         * 
+         * @throws RemoteException se ocorrer um erro de comunicação RMI.
+         */
         ClientImp() throws RemoteException {super();}
-           
+         
+        /**
+         * Atualiza as estatísticas enviadas periodicamente pelo Gateway.
+         *
+         * @param topTenUpdate Lista das 10 palavras mais pesquisadas.
+         * @param BarrelsNamesUpdate Lista com os nomes dos Barrels ativos.
+         * @param searchDurUpdate Tempo médio de pesquisa atualizado.
+         */
     
         @Override
         public void updateStatistics(List<String> topTenUpdate, List<String> BarrelsNamesUpdate, long searchDurUpdate){//falta verificar barrels ativos e o tempo medio de pesquisa
@@ -27,7 +55,13 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //METHODS
     
-    
+        /**
+         * Subscreve o cliente no Gateway remoto, permitindo receber callbacks de estatísticas.
+         *
+         * @param gateway_stub Referência remota para o objeto Gateway.
+         * @return Nome registado deste cliente no Gateway.
+         */
+
         public static String subscribe(Gateway_interface gateway_stub){
             String res= null;
             try{
@@ -41,7 +75,13 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
         } //Criar uma referencia e enviar a gateway, para fazer callback de estatisticas periodicamente
         //Uma thread por cliente a subscrever
     
-    
+        /**
+         * Envia um novo URL para indexação no Gateway.
+         *
+         * @param url Endereço URL a ser indexado.
+         * @param gateway_stub Referência remota para o objeto Gateway.
+         */
+
         public static void indexNewURL(String url, Gateway_interface gateway_stub){
             try {
     
@@ -53,8 +93,21 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
             
         }
     
-    
-        //Pode se fazer caching de pesquisas de cada cliente
+        /**
+         * Método principal do cliente.
+         * 
+         * <p>Permite:
+         * <ul>
+         *   <li>Indexar novos URLs;</li>
+         *   <li>Pesquisar palavras-chave;</li>
+         *   <li>Consultar páginas que referenciam um URL;</li>
+         *   <li>Visualizar estatísticas do sistema.</li>
+         * </ul>
+         *
+         * <p>O cliente comunica com o Gateway através de RMI e exibe os resultados no terminal.
+         *
+         * @param args Argumentos da linha de comando (não utilizados).
+         */
         public static void main(String[] args) {
             System.setProperty("java.rmi.server.hostname", "192.168.1.163");
             Gateway_interface gateway_stub;
@@ -123,8 +176,11 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
 
                     case 3:
                         System.out.println("Escreva a sua URL de referência\n");
-                        url = scanner.nextLine(); //Possivel verificacao do formato para confirmar que é uma URL
+                        url = scanner.nextLine(); 
                         try {
+                            List<String> res= gateway_stub.pesquisa_URL(url);
+                            System.out.println(res);
+                            System.out.println("\n");
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -147,11 +203,13 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
                 default:
                     break;
             }
+            scanner.close(); //alterado 
         }
         } catch (Exception e) {
             e.printStackTrace();
         }
         //end 
+        
     }
 }
     
