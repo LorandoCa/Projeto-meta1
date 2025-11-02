@@ -1,6 +1,8 @@
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -29,6 +31,10 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
 
     private Map<String,PageInfo> pageInfo;
 
+    static String endereço=null;
+    static String porta=null;
+    static Properties config = new Properties();
+
     //@SuppressWarnings("unchecked")
     public MainStorageBarrel() throws RemoteException {
         index = new HashMap<>();
@@ -37,9 +43,23 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
         last_sender= new HashMap<>();
         pageInfo= new HashMap<>();
 
+        String endereço=null;
+        String porta=null;
+        Properties config = new Properties();
+
+        try (FileInputStream input = new FileInputStream("config.properties")) {
+            // Carrega o arquivo .properties
+            config.load(input);
+            // Lê as propriedades
+            endereço = config.getProperty("rmi.host2");//pega da sua maquina
+            porta = config.getProperty("rmi.port2");
+        }catch(IOException e) {
+            System.out.println("Erro ao carregar arquivo de configuração: " + e.getMessage());
+        }
+
         try {
             
-            gateway= (Gateway_interface)Naming.lookup("rmi://172.20.10.3:1099/Gateway");
+            gateway= (Gateway_interface)Naming.lookup(String.format("rmi://%s:%s/Gateway",endereço,porta));
             
             StorageBarrelInterface S= gateway.getBarrel();
             if(S!= null) index= S.reboot();
@@ -187,7 +207,7 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
             InetAddress group = InetAddress.getByName(groupAddress);
 
             socket.setTimeToLive(2);
-            socket.setNetworkInterface(NetworkInterface.getByInetAddress(InetAddress.getByName("172.20.10.2")));
+            socket.setNetworkInterface(NetworkInterface.getByInetAddress(InetAddress.getByName(endereço)));
 
             Map<String, Object> data = new HashMap<>();
             data.put("words", words);
@@ -255,7 +275,7 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
             //Configuração essencial do socket multicast
             socket.setTimeToLive(2); // Permite sair da máquina e alcançar a LAN
             socket.setNetworkInterface(NetworkInterface.getByInetAddress(
-                InetAddress.getByName("172.20.10.2")  // substitui pelo IP da tua interface física
+                InetAddress.getByName(endereço)  // substitui pelo IP da tua interface física
             ));
     
             // Cria o conteúdo a enviar
@@ -290,9 +310,23 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
 
     public static void main(String[] args) {
 
+        //Setup
+
+        try (FileInputStream input = new FileInputStream("config.properties")) {
+            // Carrega o arquivo .properties
+            config.load(input);
+            // Lê as propriedades
+            endereço = config.getProperty("rmi.host1");//pega da sua maquina
+            porta = config.getProperty("rmi.port1");
+        }catch(IOException e) {
+            System.out.println("Erro ao carregar arquivo de configuração: " + e.getMessage());
+        }
+        
+
+
         try{
             LocateRegistry.createRegistry(1099);
-            System.setProperty("java.rmi.server.hostname", "172.20.10.3");
+            System.setProperty("java.rmi.server.hostname", endereço);
             System.out.println("RMI registry iniciado na porta 1099");
 
             MainStorageBarrel barrel = new MainStorageBarrel();

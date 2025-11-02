@@ -1,4 +1,5 @@
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
@@ -8,6 +9,7 @@ import java.net.MulticastSocket;
 import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 public class MulticastHandler extends Thread {
@@ -20,16 +22,31 @@ public class MulticastHandler extends Thread {
     SocketAddress groupSockAddr ;
     MainStorageBarrel barrel;
 
+    String endereço;
+    String porta;
+
     public MulticastHandler(MainStorageBarrel barrel){
         this.barrel= barrel;
         // TODO Auto-generated method stub
         groupAddress = "230.0.0.0";
         port = 4446;
 
+        Properties config = new Properties();
+
+        try (FileInputStream input = new FileInputStream("config.properties")) {
+            // Carrega o arquivo .properties
+            config.load(input);
+            // Lê as propriedades
+            endereço = config.getProperty("rmi.host1");//pega da sua maquina
+            porta = config.getProperty("rmi.port1");
+        }catch(IOException e) {
+            System.out.println("Erro ao carregar arquivo de configuração: " + e.getMessage());
+        }
+
         try{
             this.socket = new MulticastSocket(port);
             group = InetAddress.getByName(groupAddress);
-            netIf = NetworkInterface.getByInetAddress(InetAddress.getByName("172.20.10.2"));
+            netIf = NetworkInterface.getByInetAddress(InetAddress.getByName(endereço));
             
             System.out.println(netIf);
             
@@ -55,7 +72,7 @@ public class MulticastHandler extends Thread {
                 socket.receive(packet);
                 System.out.println("Recebi uma mensagem");
                 
-                if (packet.getAddress().equals(InetAddress.getByName("172.20.10.2"))) {//Deixar a mensagem ack vir do outro barrel
+                if (packet.getAddress().equals(InetAddress.getByName(endereço))) {//Deixar a mensagem ack vir do outro barrel
                     continue;
                 }
 

@@ -45,10 +45,24 @@ public class Crawler {
      *             </ul>
      */
     public static void main(String args[]) {
+         //Setup
+        String endereço=null;
+        String porta=null;
+        Properties config = new Properties();
+
+        try (FileInputStream input = new FileInputStream("config.properties")) {
+            // Carrega o arquivo .properties
+            config.load(input);
+            // Lê as propriedades
+            endereço = config.getProperty("rmi.host2");//endereços para a gateway é do host2
+            porta = config.getProperty("rmi.port2");
+        }catch(IOException e) {
+            System.out.println("Erro ao carregar arquivo de configuração: " + e.getMessage());
+        }
         
-        //Setup
+
         try {
-            Gateway_interface stub = (Gateway_interface)Naming.lookup("rmi://172.20.10.3:1099/Gateway");
+            Gateway_interface stub = (Gateway_interface)Naming.lookup(String.format("rmi://%s:%s/Gateway",endereço,porta));
             //Setup end
 
             String url = args[0];

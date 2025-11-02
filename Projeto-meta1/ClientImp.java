@@ -1,4 +1,6 @@
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -109,13 +111,31 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
          * @param args Argumentos da linha de comando (não utilizados).
          */
         public static void main(String[] args) {
-            System.setProperty("java.rmi.server.hostname", "172.20.10.3");
+
+            String endereço=null;
+            String endereço_gateway=null;
+            String porta=null;
+            Properties config = new Properties();
+
+            try (FileInputStream input = new FileInputStream("config.properties")) {
+                // Carrega o arquivo .properties
+                config.load(input);
+                // Lê as propriedades
+                endereço = config.getProperty("rmi.host1");//endereços para a gateway é do host2
+                endereço_gateway= config.getProperty("rmi.host2");
+                porta = config.getProperty("rmi.port1");
+            }catch(IOException e) {
+                System.out.println("Erro ao carregar arquivo de configuração: " + e.getMessage());
+            }
+
+
+            System.setProperty("java.rmi.server.hostname", endereço);
             Gateway_interface gateway_stub;
             Scanner scanner = new Scanner(System.in);
             //gateway interface setup
             try {
-                gateway_stub = (Gateway_interface)Naming.lookup("rmi://172.20.10.3:1099/Gateway");
-                //(Gateway_interface) Naming.lookup("rmi://192.168.176.1:1099/Gateway"); achar um server num ip especifico 
+                gateway_stub = (Gateway_interface)Naming.lookup( String.format("rmi://%s:%s/Gateway",endereço_gateway,porta));
+               
                 nome=subscribe(gateway_stub);
 
 

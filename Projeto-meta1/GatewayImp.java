@@ -1,6 +1,8 @@
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -206,11 +208,25 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
 //=======================================================================================================
 
     public static void main(String[] args) {
+        String endereço=null;
+        String porta=null;
+        Properties config = new Properties();
+
+        try (FileInputStream input = new FileInputStream("config.properties")) {
+            // Carrega o arquivo .properties
+            config.load(input);
+            // Lê as propriedades
+            endereço = config.getProperty("rmi.host2");
+            porta= config.getProperty("rmi.port2");
+        }catch (IOException e) {
+            System.out.println("Erro ao carregar arquivo de configuração: " + e.getMessage());
+        }
+
         try {
-            System.setProperty("java.rmi.server.hostname", "192.168.1.163");
+            System.setProperty("java.rmi.server.hostname", endereço);
             LocateRegistry.createRegistry(1099); // cria o registry na porta 1099
             GatewayImp server = new GatewayImp();
-            Naming.rebind("rmi://192.168.1.163:1099/Gateway", server);
+            Naming.rebind(String.format("rmi://%s:%s/Gateway", endereço,porta), server);
             //java -Djava.rmi.server.hostname=192.168.176.1 MeuServidor: definir um ip para um server
 
         } catch (Exception e) {
