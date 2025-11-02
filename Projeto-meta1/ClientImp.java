@@ -109,12 +109,12 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
          * @param args Argumentos da linha de comando (não utilizados).
          */
         public static void main(String[] args) {
-            System.setProperty("java.rmi.server.hostname", "192.168.1.163");
+            System.setProperty("java.rmi.server.hostname", "172.20.10.3");
             Gateway_interface gateway_stub;
             Scanner scanner = new Scanner(System.in);
             //gateway interface setup
             try {
-                gateway_stub = (Gateway_interface)Naming.lookup("rmi://192.168.1.197:1099/Gateway");
+                gateway_stub = (Gateway_interface)Naming.lookup("rmi://172.20.10.3:1099/Gateway");
                 //(Gateway_interface) Naming.lookup("rmi://192.168.176.1:1099/Gateway"); achar um server num ip especifico 
                 nome=subscribe(gateway_stub);
 

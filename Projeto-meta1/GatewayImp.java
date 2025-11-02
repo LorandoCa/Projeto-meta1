@@ -223,6 +223,11 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
         return barrelsNames;
     }
 
+    @Override
+    public void removeBarrel(StorageBarrelInterface c) throws RemoteException {
+        barrels.remove(c);
+    }
+
 
 }
 

@@ -29,7 +29,7 @@ public class MulticastHandler extends Thread {
         try{
             this.socket = new MulticastSocket(port);
             group = InetAddress.getByName(groupAddress);
-            netIf = NetworkInterface.getByInetAddress(InetAddress.getByName("192.168.1.163"));
+            netIf = NetworkInterface.getByInetAddress(InetAddress.getByName("172.20.10.2"));
             
             System.out.println(netIf);
             
@@ -55,7 +55,7 @@ public class MulticastHandler extends Thread {
                 socket.receive(packet);
                 System.out.println("Recebi uma mensagem");
                 
-                if (packet.getAddress().equals(InetAddress.getByName("192.168.1.163"))) {//Deixar a mensagem ack vir do outro barrel
+                if (packet.getAddress().equals(InetAddress.getByName("172.20.10.2"))) {//Deixar a mensagem ack vir do outro barrel
                     continue;
                 }
 

@@ -39,7 +39,7 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
 
         try {
             
-            gateway= (Gateway_interface)Naming.lookup("rmi://192.168.1.197:1099/Gateway");
+            gateway= (Gateway_interface)Naming.lookup("rmi://172.20.10.3:1099/Gateway");
             
             StorageBarrelInterface S= gateway.getBarrel();
             if(S!= null) index= S.reboot();
@@ -187,7 +187,7 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
             InetAddress group = InetAddress.getByName(groupAddress);
 
             socket.setTimeToLive(2);
-            socket.setNetworkInterface(NetworkInterface.getByInetAddress(InetAddress.getByName("192.168.1.163")));
+            socket.setNetworkInterface(NetworkInterface.getByInetAddress(InetAddress.getByName("172.20.10.2")));
 
             Map<String, Object> data = new HashMap<>();
             data.put("words", words);
@@ -255,7 +255,7 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
             //Configuração essencial do socket multicast
             socket.setTimeToLive(2); // Permite sair da máquina e alcançar a LAN
             socket.setNetworkInterface(NetworkInterface.getByInetAddress(
-                InetAddress.getByName("192.168.1.163")  // substitui pelo IP da tua interface física
+                InetAddress.getByName("172.20.10.2")  // substitui pelo IP da tua interface física
             ));
     
             // Cria o conteúdo a enviar
@@ -292,7 +292,7 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
 
         try{
             LocateRegistry.createRegistry(1099);
-            System.setProperty("java.rmi.server.hostname", "192.168.1.163");
+            System.setProperty("java.rmi.server.hostname", "172.20.10.3");
             System.out.println("RMI registry iniciado na porta 1099");
 
             MainStorageBarrel barrel = new MainStorageBarrel();

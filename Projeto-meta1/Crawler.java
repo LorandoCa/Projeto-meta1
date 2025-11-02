@@ -48,7 +48,7 @@ public class Crawler {
         
         //Setup
         try {
-            Gateway_interface stub = (Gateway_interface)Naming.lookup("rmi://192.168.1.197:1099/Gateway");
+            Gateway_interface stub = (Gateway_interface)Naming.lookup("rmi://172.20.10.3:1099/Gateway");
             //Setup end
 
             String url = args[0];
@@ -60,7 +60,7 @@ public class Crawler {
                         //Aqui tem que ser um storage aleatorio ou o contrario do ultimo utilizado
                 while(url!=null){
                     try{
-
+                        stub_barrel= stub.getBarrel();
                         System.out.printf("%s\n", url);
                         Document doc = Jsoup.connect(url)
                                 .userAgent("Mozilla/5.0 (compatible; MeuCrawler/1.0; +http://meusite.com)")
@@ -103,6 +103,7 @@ public class Crawler {
                         System.out.println("reach out");
 
                     } catch (java.rmi.ConnectException e) {
+                        stub.removeBarrel(stub_barrel);
                         stub_barrel= stub.getBarrel();
                         System.out.println("Erro: servidor RMI não acessível (" + e.getMessage() + ")");
                     } catch (java.net.ConnectException e) {
