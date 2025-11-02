@@ -13,6 +13,10 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
     List<Client_interface> clients= new ArrayList<>();//do callback to all the stored references
 
     List<StorageBarrelInterface> barrels= new ArrayList<>();
+    List<String> barrelsNames= new ArrayList<>();
+
+    long somaTempoExecucao=0;
+    int countPesquisas=0;
 
     int client_counter=1;
     int barrel_counter=1;
@@ -50,8 +54,11 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
     }
 
     @Override
-    public List<String> pesquisa_word(String word){
-        List<String> result=null;
+    public List<PageInfo> pesquisa_word(String word){
+
+        long inicio = System.currentTimeMillis();
+
+        List<PageInfo> result=null;
         String[] words= word.split(" ");
         List <String> wordss= new ArrayList<>(Arrays.asList(words));
 
@@ -84,6 +91,11 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
             }
             break;
         }
+
+        long fim = System.currentTimeMillis();
+        somaTempoExecucao+= fim-inicio;
+        countPesquisas++;
+
         searchFreq.put(word, searchFreq.getOrDefault(word, 0) + 1);
 
         
@@ -99,8 +111,8 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
                 LinkedHashMap::new // mantém a ordem do stream
             ));
         
-            this.collback();
-        
+        this.collback();
+        System.out.println("Informações de callback adicionados");
         return result; //vai retornar a lista de palavras
     }
 
@@ -116,7 +128,8 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
         while (it.hasNext()) {
             Client_interface client = it.next();
             try {
-                ((Client_interface)client).updateStatistics(new ArrayList<>(listaPesq.subList(0, Math.min(10, listaPesq.size()))));
+                ((Client_interface)client).updateStatistics(new ArrayList<>(listaPesq.subList(0, Math.min(10, listaPesq.size()))), 
+                                                            getBarrelsNames(), somaTempoExecucao/countPesquisas);
             } catch (java.rmi.ConnectException e) {
                 System.out.println("Cliente desconectado. Removendo da lista...");
                 it.remove(); // o cliente caiu
@@ -165,6 +178,7 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
     public String subscribe(StorageBarrelInterface b){
         barrels.add(b);
         System.out.println("Adicionado com sucesso");
+        barrelsNames.add(String.format("Barrel%d", barrel_counter));
         return String.format("Barrel%d", barrel_counter++);
     }
 
@@ -195,6 +209,11 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public List<String> getBarrelsNames() throws RemoteException {
+        return barrelsNames;
     }
 
 

@@ -15,7 +15,7 @@ public static void main(String args[]) {
     
     //Setup
     try {
-        Gateway_interface stub = (Gateway_interface)Naming.lookup("rmi://192.168.1.163:1099/Gateway");
+        Gateway_interface stub = (Gateway_interface)Naming.lookup("rmi://192.168.1.197:1099/Gateway");
         //Setup end
 
         String url = args[0];
@@ -42,13 +42,15 @@ public static void main(String args[]) {
                     words_indexed.add(tokens.nextToken().toLowerCase());  
                 }
 
-                //Mandar ao Barrel a lista de palavras e o URL atual
+                // Armazenar para cada página sua url, seu título e citação
+                String titulo = doc.title();
+                String texto = doc.body().text();
+                String citacao = texto.length() > 150 ? texto.substring(0, 150) + "..." : texto;
 
                 //Fazer uma thread para essa adicionar isso 
-                System.out.printf("First\n");
-                ref=stub_barrel.addWordToStructure(words_indexed,url,crawler_name,ref);
+                ref=stub_barrel.addWordToStructure(words_indexed, url, new PageInfo(url, titulo, citacao),crawler_name, ref);
                 ref++;
-                System.out.printf("Second\n");
+                System.out.printf("A referencia atual é %d\n",ref);
                 Elements links = doc.select("a[href]");
                 Set<String> Refs = new HashSet<>();
 
@@ -68,6 +70,9 @@ public static void main(String args[]) {
             }
 
         } catch (IOException e) {
+            e.printStackTrace();
+        }catch (Exception e) {
+            System.out.println("Pagina nao tratavel");
             e.printStackTrace();
         }
     } catch (Exception e) {

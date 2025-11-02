@@ -13,7 +13,7 @@ public interface Gateway_interface extends Remote {
     
     public List<String> pesquisa_URL(String url) throws RemoteException; //pesquisa todas as URL's relacionadas a "url"
    
-    public List<String> pesquisa_word(String word) throws RemoteException;
+    public List<PageInfo> pesquisa_word(String word) throws RemoteException;
 
     public String statistics() throws RemoteException;
 
@@ -26,5 +26,7 @@ public interface Gateway_interface extends Remote {
     public  Integer getBarrelNum() throws RemoteException; 
 
     public StorageBarrelInterface getBarrel() throws RemoteException;
+
+    public List<String> getBarrelsNames() throws RemoteException;
 
 }

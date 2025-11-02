@@ -7,7 +7,9 @@ import java.util.*;
 public class ClientImp extends UnicastRemoteObject implements Client_interface {
 
     static List<String> topTen;
+    static List<String> BarrelsNames;
     static String nome;
+    static long searchDur= 0;
     
     
     
@@ -15,8 +17,10 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
            
     
         @Override
-        public void updateStatistics(List<String> topTenUpdate){//falta verificar barrels ativos e o tempo medio de pesquisa
+        public void updateStatistics(List<String> topTenUpdate, List<String> BarrelsNamesUpdate, long searchDurUpdate){//falta verificar barrels ativos e o tempo medio de pesquisa
             topTen= topTenUpdate;
+            BarrelsNames= BarrelsNamesUpdate;
+            searchDur=searchDurUpdate;
         }
     
     //Interface implemetnation end
@@ -52,6 +56,7 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
     
         //Pode se fazer caching de pesquisas de cada cliente
         public static void main(String[] args) {
+            System.setProperty("java.rmi.server.hostname", "192.168.1.163");
             Gateway_interface gateway_stub;
             Scanner scanner = new Scanner(System.in);
             //gateway interface setup
@@ -83,14 +88,29 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
                     
                     break;
                 
-                case 2:
+                    case 2:
                     System.out.println("Escreva uma palavra");
                     String wrd = scanner.nextLine(); //Possivel verificacao do formato para confirmar que é uma URL
                     try {
-                        List<String> result= gateway_stub.pesquisa_word(wrd);
+                        List<PageInfo> result = gateway_stub.pesquisa_word(wrd);
                         System.out.printf("%d\n\n", result.size());
-                        for( String i : result){
-                            System.out.printf("%s\n", i);
+                        System.out.printf("=== Resultados da pesquisa ===\n\n");
+                        for(PageInfo i : result){
+                            for(int j = 0; j < 10; j++){
+                                System.out.printf("Título: %s\n", i.getTitulo());
+                                System.out.printf("URL: %s\n", i.getUrl());
+                                System.out.printf("Citação: %s\n", i.getCitacao());
+                            }
+                            System.out.println("\n");
+                            
+                            System.out.println("Quer continuar vendo resultados da pesquisa? [S/N]");
+                            String confirmacao = scanner.nextLine(); // Confirmação apra proceder com os resultados da pesquisa
+                            if(confirmacao.equals("S")){
+                                continue;
+                            }
+                            else{
+                                break;
+                            }
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -113,6 +133,10 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
                         try {
                             System.out.println("--------------------STATISTICS-----------------------------");
                             System.out.println(topTen);
+                            System.out.println("\n");
+                            System.out.println(BarrelsNames);
+                            System.out.println("\n");
+                            System.out.println(searchDur);
                             System.out.println("\n");
                         } catch (Exception e) {
                             e.printStackTrace();

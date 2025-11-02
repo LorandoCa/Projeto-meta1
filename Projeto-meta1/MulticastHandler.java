@@ -83,6 +83,8 @@ public class MulticastHandler extends Thread {
                         
                         Object w = map.get("words");
                         Object u = map.get("url");
+
+                        Object b= map.get("pages");
     
                         if (w instanceof Set<?> && u instanceof String) {
                            
@@ -97,7 +99,7 @@ public class MulticastHandler extends Thread {
                             System.out.println(packet.getAddress());
                             socket.send(ackpack);
 
-                            barrel.addWordToStructure(words, url,(String)c, -1);
+                            barrel.addWordToStructure(words, url, (PageInfo)b, (String)c, -1);
                             System.out.println("Apos receber na minha thread adicionei à minha estrutura de words");
                         } else {
                             System.err.println("Tipos incompatíveis para 'words' ou 'url'");
@@ -136,7 +138,7 @@ public class MulticastHandler extends Thread {
             }
                 //mandar ACk X
                 //Fazer codigo da parte do outro barrel q vai fazer envios multicast X
-                //Fazer um envio completo quando um barrel se inscreve
+                //Fazer um envio completo quando um barrel se inscreve X
                 //Fazer filtragem de duplicados, usando uma ref para cada operacao da parte do barrel q recebe X
                 //
             } catch (Exception e) {
