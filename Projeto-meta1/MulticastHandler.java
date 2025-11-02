@@ -20,7 +20,7 @@ public class MulticastHandler extends Thread {
     SocketAddress groupSockAddr ;
     MainStorageBarrel barrel;
 
-    MulticastHandler(MainStorageBarrel barrel){
+    public MulticastHandler(MainStorageBarrel barrel){
         this.barrel= barrel;
         // TODO Auto-generated method stub
         groupAddress = "230.0.0.0";
@@ -30,7 +30,9 @@ public class MulticastHandler extends Thread {
             this.socket = new MulticastSocket(port);
             group = InetAddress.getByName(groupAddress);
             netIf = NetworkInterface.getByInetAddress(InetAddress.getByName("192.168.1.163"));
-            System.out.println(InetAddress.getLocalHost());
+            
+            System.out.println(netIf);
+            
             groupSockAddr = new InetSocketAddress(group, port);
 
             // Entrar no grupo multicast (novo método)
@@ -48,16 +50,15 @@ public class MulticastHandler extends Thread {
             
             try {
                 byte[] data = new byte[8192];
-
+                System.out.println("Setup");
                 DatagramPacket packet = new DatagramPacket(data, data.length);
                 socket.receive(packet);
-                System.out.println("passei1");
+                System.out.println("Recebi uma mensagem");
                 
                 if (packet.getAddress().equals(InetAddress.getByName("192.168.1.163"))) {//Deixar a mensagem ack vir do outro barrel
                     continue;
                 }
 
-                System.out.println("passei");
                 byte[] dados = packet.getData();
                 int length = packet.getLength();
                 //Enviar ACK 
@@ -96,8 +97,8 @@ public class MulticastHandler extends Thread {
                             System.out.println(packet.getAddress());
                             socket.send(ackpack);
 
-                            barrel.addWordToStructure(words, url,(String)c, (int)a);
-                            System.out.println("1 done\n\n");
+                            barrel.addWordToStructure(words, url,(String)c, -1);
+                            System.out.println("Apos receber na minha thread adicionei à minha estrutura de words");
                         } else {
                             System.err.println("Tipos incompatíveis para 'words' ou 'url'");
                         }
@@ -121,7 +122,8 @@ public class MulticastHandler extends Thread {
                             DatagramPacket ackpack = new DatagramPacket(buffer, buffer.length, packet.getAddress(), packet.getPort());
                             socket.send(ackpack);
 
-                            barrel.addLinks(fromUrl, toUrls,(String)c, (int)a); //Atualizacao de barrel
+                            barrel.addLinks(fromUrl, toUrls,(String)c, -1); //Atualizacao de barrel
+                            System.out.println("Apos receber na minha thread adicionei à minha estrutura de links");
                         } else {
                             System.err.println("Tipos incompatíveis para 'fromUrl' ou 'toUrls'");
                         }
