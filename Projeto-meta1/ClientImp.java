@@ -95,23 +95,26 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
                         List<PageInfo> result = gateway_stub.pesquisa_word(wrd);
                         System.out.printf("%d\n\n", result.size());
                         System.out.printf("=== Resultados da pesquisa ===\n\n");
+                        int counter = 1;
                         for(PageInfo i : result){
-                            for(int j = 0; j < 10; j++){
-                                System.out.printf("Título: %s\n", i.getTitulo());
-                                System.out.printf("URL: %s\n", i.getUrl());
-                                System.out.printf("Citação: %s\n", i.getCitacao());
+                            System.out.printf("Título: %s\n", i.getTitulo());
+                            System.out.printf("URL: %s\n", i.getUrl());
+                            System.out.printf("Citação: %s\n", i.getCitacao());
+
+                            counter++;
+                            if(counter%10==0){
+                                System.out.println("Quer continuar vendo resultados da pesquisa? [S/N]");
+                                String confirmacao = scanner.nextLine(); // Confirmação apra proceder com os resultados da pesquisa
+                                if(confirmacao.equals("S")){
+                                    continue;
+                                }
+                                else{
+                                    break;
+                                }
                             }
-                            System.out.println("\n");
+                        }   
                             
-                            System.out.println("Quer continuar vendo resultados da pesquisa? [S/N]");
-                            String confirmacao = scanner.nextLine(); // Confirmação apra proceder com os resultados da pesquisa
-                            if(confirmacao.equals("S")){
-                                continue;
-                            }
-                            else{
-                                break;
-                            }
-                        }
+
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -122,7 +125,6 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
                         System.out.println("Escreva a sua URL de referência\n");
                         url = scanner.nextLine(); //Possivel verificacao do formato para confirmar que é uma URL
                         try {
-                            //Usar um metodo da interface gateway. esse metodo vai chamar um metodo da interfce do barrel
                         } catch (Exception e) {
                             e.printStackTrace();
                         }

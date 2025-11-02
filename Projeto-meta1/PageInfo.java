@@ -1,4 +1,6 @@
-public class PageInfo {
+import java.io.Serializable;
+
+public class PageInfo implements Serializable {
     private String url;
     private String titulo;
     private String citacao;

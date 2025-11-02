@@ -40,23 +40,7 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
         linkPages = new HashMap<>();
         urlPopularity = new HashMap<>();
         last_sender= new HashMap<>();
-
-        /*try{
-            File file = new File("MainStorageIndex.bin");
-            if (file.exists()){
-                ObjectInputStream ois = new ObjectInputStream(new FileInputStream("MainStorageIndex.bin"));
-                index = (Map<String, Set<String>>) ois.readObject();
-                ois.close();
-            }
-            file = new File("MainStorageLinks.bin");
-            if (file.exists()){
-                ObjectInputStream ois1 = new ObjectInputStream(new FileInputStream("MainStorageLinks.bin"));
-                linkPages= (Map<String, Set<String>>) ois1.readObject();
-                ois1.close();
-            }
-        }catch (Exception e) {
-            e.printStackTrace();
-        }*/
+        pageInfo= new HashMap<>();
 
         try {
             

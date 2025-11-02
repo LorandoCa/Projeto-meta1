@@ -160,12 +160,19 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
     
     @Override
     public List<String> pesquisa_URL(String url){
-        try {
         
+        try {
+             //Load balancing
+            prev_barrel= (prev_barrel+1) % barrels.size();
+            StorageBarrelInterface barrel= barrels.get(prev_barrel);
+            Set<String> res = barrel.searchUrl(url);
+            return new ArrayList<>(res);
+       //end
         } catch (Exception e) {
-            // TODO: handle exception
+            e.printStackTrace();
         }
         return null;
+        
     }
 
     @Override
@@ -190,7 +197,7 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
     @Override
     public StorageBarrelInterface getBarrel(){ //fixando o numero de barrels a 2
         Random r= new Random();
-        if(barrels.size()>1) return barrels.get(r.nextInt(1));
+        if(barrels.size()>1) return barrels.get(r.nextInt(2));
         if(barrels.size()==0) return null;
         return barrels.get(0);
     }
