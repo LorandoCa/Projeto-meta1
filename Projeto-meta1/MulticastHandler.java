@@ -29,7 +29,7 @@ public class MulticastHandler extends Thread {
         try{
             this.socket = new MulticastSocket(port);
             group = InetAddress.getByName(groupAddress);
-            netIf = NetworkInterface.getByInetAddress(InetAddress.getLocalHost());
+            netIf = NetworkInterface.getByInetAddress(InetAddress.getByName("192.168.1.163"));
             System.out.println(InetAddress.getLocalHost());
             groupSockAddr = new InetSocketAddress(group, port);
 
@@ -39,7 +39,6 @@ public class MulticastHandler extends Thread {
         }catch(Exception e){
             e.printStackTrace();
         }
-
     }
 
     //Mostly chatGPT
@@ -51,13 +50,13 @@ public class MulticastHandler extends Thread {
                 byte[] data = new byte[8192];
 
                 DatagramPacket packet = new DatagramPacket(data, data.length);
-
                 socket.receive(packet);
                 System.out.println("passei1");
-                /* 
-                if((InetAddress.getLocalHost()).equals(packet.getAddress())){
+                
+                if (packet.getAddress().equals(InetAddress.getByName("192.168.1.163"))) {//Deixar a mensagem ack vir do outro barrel
                     continue;
-                }*/
+                }
+
                 System.out.println("passei");
                 byte[] dados = packet.getData();
                 int length = packet.getLength();
@@ -94,6 +93,7 @@ public class MulticastHandler extends Thread {
                             byte[] buffer= "ACK".getBytes();
                             // Cria o pacote e envia
                             DatagramPacket ackpack = new DatagramPacket(buffer, buffer.length, packet.getAddress(), packet.getPort());
+                            System.out.println(packet.getAddress());
                             socket.send(ackpack);
 
                             barrel.addWordToStructure(words, url,(String)c, (int)a);

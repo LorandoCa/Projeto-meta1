@@ -15,7 +15,7 @@ public static void main(String args[]) {
     
     //Setup
     try {
-        Gateway_interface stub = (Gateway_interface) Naming.lookup("Gateway");
+        Gateway_interface stub = (Gateway_interface)Naming.lookup("rmi://192.168.1.197:1099/Gateway");
         //Setup end
 
         String url = args[0];

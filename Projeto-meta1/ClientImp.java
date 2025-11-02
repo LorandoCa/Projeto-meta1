@@ -56,7 +56,7 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
             Scanner scanner = new Scanner(System.in);
             //gateway interface setup
             try {
-                gateway_stub = (Gateway_interface)Naming.lookup("Gateway");
+                gateway_stub = (Gateway_interface)Naming.lookup("rmi://192.168.1.197:1099/Gateway");
                 //(Gateway_interface) Naming.lookup("rmi://192.168.176.1:1099/Gateway"); achar um server num ip especifico 
                 nome=subscribe(gateway_stub);
 

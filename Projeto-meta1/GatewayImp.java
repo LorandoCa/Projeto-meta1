@@ -186,9 +186,10 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
 
     public static void main(String[] args) {
         try {
+            System.setProperty("java.rmi.server.hostname", "192.168.1.163");
             LocateRegistry.createRegistry(1099); // cria o registry na porta 1099
             GatewayImp server = new GatewayImp();
-            Naming.rebind("Gateway", server);
+            Naming.rebind("rmi://192.168.1.163:1099/Gateway", server);
             //java -Djava.rmi.server.hostname=192.168.176.1 MeuServidor: definir um ip para um server
 
         } catch (Exception e) {

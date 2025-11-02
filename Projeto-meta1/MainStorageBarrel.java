@@ -13,6 +13,7 @@ import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
 
 
 public class MainStorageBarrel extends UnicastRemoteObject implements StorageBarrelInterface{
@@ -54,8 +55,9 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
         }*/
 
         try {
-            gateway= (Gateway_interface)Naming.lookup("rmi://192.168.183.150:1099/Gateway");
-            System.out.println("aquiiii");
+            
+            gateway= (Gateway_interface)Naming.lookup("rmi://192.168.1.197:1099/Gateway");
+            
             StorageBarrelInterface S= gateway.getBarrel();
             if(S!= null) index= S.reboot();
         } catch (Exception e) {
@@ -67,7 +69,7 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
 
     @Override
     public synchronized int addWordToStructure(Set<String> words, String url, String Crawler, int ref) {
-        System.out.println(words.size());
+        //System.out.println(words.size());
         //Se eu guardar o valor da ultima referencia dos dois crawlers, posso fazer filtragem corretamente
         if(last_sender.containsKey(Crawler) && last_sender.get(Crawler)<=ref) return ref;
 
@@ -276,14 +278,18 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
     public static void main(String[] args) {
 
         try{
-           
+            LocateRegistry.createRegistry(1099);
+            System.setProperty("java.rmi.server.hostname", "192.168.1.163");
             System.out.println("RMI registry iniciado na porta 1099");
 
             MainStorageBarrel barrel = new MainStorageBarrel();
-            
+
+
             nome= gateway.subscribe(barrel);
-            Naming.rebind(nome, barrel);
+            
             System.out.printf("Eu sou %s\n", nome);
+            Naming.rebind(nome, barrel);
+           
 
 
             MulticastHandler t= new MulticastHandler(barrel);
