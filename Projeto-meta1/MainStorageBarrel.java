@@ -234,6 +234,17 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
         System.out.println("SENT\n\n");
         while(true){
             try {
+                List<StorageBarrelInterface> aux= gateway.getBarrels();
+                
+                for (StorageBarrelInterface i:aux) {
+                    try {
+                        i.teste();
+                    } catch (java.rmi.ConnectException e) {
+                        gateway.removeBarrel(i);
+                    }
+                         
+                }
+
                 if(gateway.getBarrelNum()==1) break;
                 socket.send(packet);
                 //Esperar ACK. Define um limite de espera para voltar a enviar XXXXXX
@@ -346,6 +357,13 @@ public class MainStorageBarrel extends UnicastRemoteObject implements StorageBar
                 e.printStackTrace();
             }
     }
+
+    @Override
+    public void teste() throws RemoteException {
+        return;
+    }
+
+
 
     
    

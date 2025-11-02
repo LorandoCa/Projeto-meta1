@@ -244,6 +244,12 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
         barrels.remove(c);
     }
 
+    @Override
+    public List<StorageBarrelInterface> getBarrels() throws RemoteException {
+        // TODO Auto-generated method stub
+        return barrels;
+    }
+
 
 }
 

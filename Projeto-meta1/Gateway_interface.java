@@ -29,6 +29,8 @@ public interface Gateway_interface extends Remote {
 
     public List<String> getBarrelsNames() throws RemoteException;
 
+    public List<StorageBarrelInterface> getBarrels() throws RemoteException;
+
     public void removeBarrel(StorageBarrelInterface c) throws RemoteException;
 
 

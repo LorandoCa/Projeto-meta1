@@ -11,5 +11,6 @@ public interface StorageBarrelInterface extends Remote {
     public int addLinks(String fromUrl, Set<String> toUrls, String Crawler, int ref) throws RemoteException;
     public Set<String> searchUrl(String url) throws RemoteException;
     public Map<String, Set<String>> reboot() throws RemoteException;
+    public void teste() throws RemoteException;
 
 }
