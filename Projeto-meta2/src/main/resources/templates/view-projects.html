@@ -1,0 +1,36 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head> 
+    <title>A apresentar projetos</title> 
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+    <table>
+        <thead>
+            <tr>
+                <td width="20px"><b> id</b></td>
+                <td><b>title</b> </td>
+                <td><b>type</b> </td>
+                <td><b>color</b> </td>
+                <td><b>description</b> </td>
+                <td><b>days</b> </td>
+                <td><b>price</b> </td>
+                <td><b>featured</b> </td>
+                <td><b>launchDate</b> </td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="proj, iStat : ${proj}" th:style="${iStat.odd}? 'font-weight: bold;'">
+                <td width="20px" th:text="${proj.id}">
+                </td><td th:text="${proj.title}">
+                </td><td th:text="${proj.type}">
+                </td><td th:text="${proj.color}">
+                </td><td th:text="${proj.description}">
+                </td><td th:text="${proj.price}">
+                </td><td th:text="${proj.featured}">
+                </td><td th:text="${proj.launchDate}">
+           </td></tr>
+         </tbody>
+        </table>
+</body>
+</html>
