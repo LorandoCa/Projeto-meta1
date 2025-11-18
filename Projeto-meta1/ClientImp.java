@@ -1,29 +1,70 @@
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
-
+/**
+ * Implementação do cliente para o sistema distribuído.
+ * 
+ * <p>Esta classe comunica com o {@code Gateway_interface} remoto via RMI,
+ * permitindo ao utilizador interagir com o sistema para indexar URLs,
+ * pesquisar palavras, consultar páginas relacionadas e visualizar estatísticas.
+ * 
+ * <p>O cliente também subscreve atualizações periódicas de estatísticas
+ * enviadas pelo gateway.
+ * 
+ * @author Pedro Ferreira, Lorando Ca
+ */
 public class ClientImp extends UnicastRemoteObject implements Client_interface {
+        /** Lista das 10 palavras mais pesquisadas. */
+        static List<String> topTen;
 
-    static List<String> topTen;
-    static String nome;
+        /** Lista com os nomes dos Storage Barrels registados. */
+        static List<String> BarrelsNames;
+
+        /** Nome atribuído a este cliente pelo Gateway. */
+        static String nome;
+
+        /** Duração média das pesquisas, atualizada pelo Gateway. */
+        static long searchDur = 0;
     
     
-    
+        /**
+         * Construtor da classe ClientImp.
+         * 
+         * @throws RemoteException se ocorrer um erro de comunicação RMI.
+         */
         ClientImp() throws RemoteException {super();}
-           
+         
+        /**
+         * Atualiza as estatísticas enviadas periodicamente pelo Gateway.
+         *
+         * @param topTenUpdate Lista das 10 palavras mais pesquisadas.
+         * @param BarrelsNamesUpdate Lista com os nomes dos Barrels ativos.
+         * @param searchDurUpdate Tempo médio de pesquisa atualizado.
+         */
     
         @Override
-        public void updateStatistics(List<String> topTenUpdate){//falta verificar barrels ativos e o tempo medio de pesquisa
+        public void updateStatistics(List<String> topTenUpdate, List<String> BarrelsNamesUpdate, long searchDurUpdate){//falta verificar barrels ativos e o tempo medio de pesquisa
+
             topTen= topTenUpdate;
+            BarrelsNames= BarrelsNamesUpdate;
+            searchDur=searchDurUpdate;
         }
     
     //Interface implemetnation end
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //METHODS
     
-    
+        /**
+         * Subscreve o cliente no Gateway remoto, permitindo receber callbacks de estatísticas.
+         *
+         * @param gateway_stub Referência remota para o objeto Gateway.
+         * @return Nome registado deste cliente no Gateway.
+         */
+
         public static String subscribe(Gateway_interface gateway_stub){
             String res= null;
             try{
@@ -37,7 +78,13 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
         } //Criar uma referencia e enviar a gateway, para fazer callback de estatisticas periodicamente
         //Uma thread por cliente a subscrever
     
-    
+        /**
+         * Envia um novo URL para indexação no Gateway.
+         *
+         * @param url Endereço URL a ser indexado.
+         * @param gateway_stub Referência remota para o objeto Gateway.
+         */
+
         public static void indexNewURL(String url, Gateway_interface gateway_stub){
             try {
     
@@ -49,15 +96,47 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
             
         }
     
-    
-        //Pode se fazer caching de pesquisas de cada cliente
+        /**
+         * Método principal do cliente.
+         * 
+         * <p>Permite:
+         * <ul>
+         *   <li>Indexar novos URLs;</li>
+         *   <li>Pesquisar palavras-chave;</li>
+         *   <li>Consultar páginas que referenciam um URL;</li>
+         *   <li>Visualizar estatísticas do sistema.</li>
+         * </ul>
+         *
+         * <p>O cliente comunica com o Gateway através de RMI e exibe os resultados no terminal.
+         *
+         * @param args Argumentos da linha de comando (não utilizados).
+         */
         public static void main(String[] args) {
+
+            String endereço=null;
+            String endereço_gateway=null;
+            String porta=null;
+            Properties config = new Properties();
+
+            try (FileInputStream input = new FileInputStream("config.properties")) {
+                // Carrega o arquivo .properties
+                config.load(input);
+                // Lê as propriedades
+                endereço = config.getProperty("rmi.host1");//endereços para a gateway é do host2
+                endereço_gateway= config.getProperty("rmi.host2");
+                porta = config.getProperty("rmi.port1");
+            }catch(IOException e) {
+                System.out.println("Erro ao carregar arquivo de configuração: " + e.getMessage());
+            }
+
+
+            System.setProperty("java.rmi.server.hostname", endereço);
             Gateway_interface gateway_stub;
             Scanner scanner = new Scanner(System.in);
             //gateway interface setup
             try {
-                gateway_stub = (Gateway_interface)Naming.lookup("Gateway");
-                //(Gateway_interface) Naming.lookup("rmi://192.168.176.1:1099/Gateway"); achar um server num ip especifico 
+                gateway_stub = (Gateway_interface)Naming.lookup( String.format("rmi://%s:%s/Gateway",endereço_gateway,porta));
+               
                 nome=subscribe(gateway_stub);
 
 
@@ -83,15 +162,32 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
                     
                     break;
                 
-                case 2:
+                    case 2:
                     System.out.println("Escreva uma palavra");
                     String wrd = scanner.nextLine(); //Possivel verificacao do formato para confirmar que é uma URL
                     try {
-                        List<String> result= gateway_stub.pesquisa_word(wrd);
+                        List<PageInfo> result = gateway_stub.pesquisa_word(wrd);
                         System.out.printf("%d\n\n", result.size());
-                        for( String i : result){
-                            System.out.printf("%s\n", i);
-                        }
+                        System.out.printf("=== Resultados da pesquisa ===\n\n");
+                        int counter = 1;
+                        for(PageInfo i : result){
+                            System.out.printf("Título: %s\n", i.getTitulo());
+                            System.out.printf("URL: %s\n", i.getUrl());
+                            System.out.printf("Citação: %s\n", i.getCitacao());
+                            counter++;
+                            if(counter%10==0){
+                                System.out.println("Quer continuar vendo resultados da pesquisa? [S/N]");
+                                String confirmacao = scanner.nextLine(); // Confirmação apra proceder com os resultados da pesquisa
+                                if(confirmacao.equals("S")){
+                                    continue;
+                                }
+                                else{
+                                    break;
+                                }
+                            }
+                        }   
+                            
+
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -100,9 +196,11 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
 
                     case 3:
                         System.out.println("Escreva a sua URL de referência\n");
-                        url = scanner.nextLine(); //Possivel verificacao do formato para confirmar que é uma URL
+                        url = scanner.nextLine(); 
                         try {
-                            //Usar um metodo da interface gateway. esse metodo vai chamar um metodo da interfce do barrel
+                            List<String> res= gateway_stub.pesquisa_URL(url);
+                            System.out.println(res);
+                            System.out.println("\n");
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -114,6 +212,10 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
                             System.out.println("--------------------STATISTICS-----------------------------");
                             System.out.println(topTen);
                             System.out.println("\n");
+                            System.out.println(BarrelsNames);
+                            System.out.println("\n");
+                            System.out.println(searchDur);
+                            System.out.println("\n");
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -121,12 +223,13 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
                 default:
                     break;
             }
+            scanner.close(); //alterado 
         }
         } catch (Exception e) {
             e.printStackTrace();
         }
         //end 
+        
     }
 }
     
-

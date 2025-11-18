@@ -1,3 +1,5 @@
+package com.example.servingwebcontent.interfaces;
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;

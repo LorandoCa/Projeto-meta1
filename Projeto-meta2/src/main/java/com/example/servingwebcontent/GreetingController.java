@@ -1,119 +1,69 @@
 package com.example.servingwebcontent;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import com.example.servingwebcontent.interfaces.Gateway_interface;
+import com.example.servingwebcontent.interfaces.PageInfo;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.rmi.Naming;
 import java.util.List;
+import java.util.Properties;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpSession;
-
-import com.example.servingwebcontent.beans.Number;
-import com.example.servingwebcontent.forms.Project;
-import com.example.servingwebcontent.thedata.Employee;
-
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Controller
 public class GreetingController {
 
-    private ArrayList<Project> listaProjeto = new ArrayList<>();
+	/////////////////////////////////////SETUP///////////////////////////////////////////////////////////////
+	String endereço_gateway=null;
+	String porta=null;
+	Properties config = new Properties();
+	Gateway_interface gateway_stub;
 
-    @Resource(name = "requestScopedNumberGenerator")
-    private Number nRequest;
+	GreetingController(){
 
-    @Resource(name = "sessionScopedNumberGenerator")
-    private Number nSession;
+		try (FileInputStream input = new FileInputStream("config.properties")) {
+			// Carrega o arquivo .properties
+			config.load(input);
+			// Lê as propriedades
+			endereço_gateway= config.getProperty("rmi.host2");
+			porta = config.getProperty("rmi.port2");
+		}catch(IOException e) {
+			System.out.println("Erro ao carregar arquivo de configuração: " + e.getMessage());
+		}
 
-    @Resource(name = "applicationScopedNumberGenerator")
-    private Number nApplication;
+		
+		//gateway interface setup
+		try {
+			gateway_stub = (Gateway_interface)Naming.lookup( String.format("rmi://%s:%s/Gateway",endereço_gateway,porta));
+		}catch(Exception exception){}
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	}
 
-    @Bean
-    @Scope(value = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.TARGET_CLASS)
-    public Number requestScopedNumberGenerator() {
-        return new Number();
-    }
 
-    @Bean
-    @Scope(value = WebApplicationContext.SCOPE_SESSION, proxyMode = ScopedProxyMode.TARGET_CLASS)
-    public Number sessionScopedNumberGenerator() {
-        return new Number();
-    }
 
-    @Bean
-    @Scope(value = WebApplicationContext.SCOPE_APPLICATION, proxyMode = ScopedProxyMode.TARGET_CLASS)
-    public Number applicationScopedNumberGenerator() {
-        return new Number();
-    }
+
 
     @GetMapping("/")
     public String redirect() {
-        return "redirect:/greeting";
+        return "redirect:/index";
     }
 
-	@GetMapping("/greeting")
-	public String greeting(@RequestParam(name="name", required=false, defaultValue="World") String name, Model model) {
-		model.addAttribute("name", name);
-		model.addAttribute("othername", "SD");
-		return "greeting";
-	}
+	@GetMapping("/Search")
+	public String Search(@RequestParam(name="word", required=true) String word, Model model) {
 
-    @GetMapping("/givemeatable")
-	public String atable(Model model) {
-        Employee [] theEmployees = { new Employee(1, "José", "9199999", 1890), new Employee(2, "Marisa", "9488444", 2120), new Employee(3, "Hélio", "93434444", 2500)};
-        List<Employee> le = new ArrayList<>();
-        Collections.addAll(le, theEmployees);
-        model.addAttribute("emp", le);
-		return "table";
-	}
+		try {
+		List<PageInfo> result = gateway_stub.pesquisa_word(word);
+		model.addAttribute("name", result);
+		
+		} catch (Exception e) {
+			System.out.println("Erro a comunicar com a gateway");
+		}
 
-    // from https://attacomsian.com/blog/spring-boot-thymeleaf-form-handling and https://github.com/attacomsian/code-examples
-	@GetMapping("/create-project")
-    public String createProjectForm(Model model) {
-        
-        model.addAttribute("project", new Project());
-        return "create-project";
-    }
-
-    @PostMapping("/save-project")
-    public String saveProjectSubmission(@ModelAttribute Project project) {
-        listaProjeto.add(project);
-        return "result";
-    }
-
-    @GetMapping("/view-projects")
-    public String viewProjects(Model model) {
-        model.addAttribute("proj", listaProjeto);
-        return "view-projects";
-    }
-
-
-    @GetMapping("/counters")
-	public String counters(Model model) {
-        ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
-        HttpSession session = attr.getRequest().getSession(true);
-        Integer counter = (Integer) session.getAttribute("counter");
-        int c;
-        if (counter == null)
-            c = 1;
-        else
-            c = counter + 1;
-        session.setAttribute("counter", c);
-		model.addAttribute("sessioncounter", c);
-		model.addAttribute("requestcounter2", this.nRequest.next());
-		model.addAttribute("sessioncounter2", this.nSession.next());
-		model.addAttribute("applicationcounter2", this.nApplication.next());
-		return "counter";
+		return "SearchResults";
 	}
 
 }
