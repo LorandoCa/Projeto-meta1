@@ -2,6 +2,7 @@ package com.example.servingwebcontent;
 
 import com.example.servingwebcontent.interfaces.Gateway_interface;
 import com.example.servingwebcontent.interfaces.PageInfo;
+import com.example.servingwebcontent.forms.SearchForm;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -12,7 +13,8 @@ import java.util.Properties;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ModelAttribute;
+//import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class GreetingController {
@@ -49,14 +51,21 @@ public class GreetingController {
 
     @GetMapping("/")
     public String redirect() {
-        return "redirect:/index";
+        return "index";
     }
 
-	@GetMapping("/Search")
-	public String Search(@RequestParam(name="word", required=true) String word, Model model) {
+	@GetMapping("/goToSearch")
+	public String goToSearch(Model model) {
+		model.addAttribute("searchForm", new SearchForm() );
+		return "Search";
+	}
 
+
+	@GetMapping("/Search")
+	public String Search(@ModelAttribute SearchForm searchForm, Model model) {
+		String wordToLook= searchForm.getWord();
 		try {
-		List<PageInfo> result = gateway_stub.pesquisa_word(word);
+		List<PageInfo> result = gateway_stub.pesquisa_word(wordToLook);
 		model.addAttribute("name", result);
 		
 		} catch (Exception e) {

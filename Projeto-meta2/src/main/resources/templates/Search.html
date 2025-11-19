@@ -135,14 +135,14 @@
         <div class="googol-logo">
             <span>G</span><span>o</span><span>o</span><span>g</span><span>o</span><span>l</span>
         </div>
-        <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3 d-flex flex-column align-items-center" role="search">
-            <input
+        <form th:action="@{/Search}" th:object="${searchForm}" method="Get" class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3 d-flex flex-column align-items-center" role="search">
+            <input th:field="*{word}"
               type="search"
               class="form-control bg-dark text-white mb-2"
               placeholder="Search..."
               aria-label="Search"
             />
-            <button type="button" class="btn btn-outline-dark" style="width: 150px;">
+            <button type="submit" class="btn btn-outline-dark" style="width: 150px;">
                 Search
             </button>
         </form>
