@@ -1,10 +1,13 @@
 import java.io.*;
 import java.rmi.Naming;
 import java.util.*;
+
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
 
 /**
  * Classe {@code Crawler} responsável por realizar o processo de rastreamento (crawl)
