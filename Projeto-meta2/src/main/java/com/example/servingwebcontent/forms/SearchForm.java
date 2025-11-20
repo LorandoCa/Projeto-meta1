@@ -5,12 +5,16 @@ import java.io.Serializable;
 public class SearchForm implements Serializable {
     private Long id;
     private String word;
+    private String indexHackerNews;
+    private boolean varTypeError;
 
     public SearchForm() {}
 
-    public SearchForm(Long id, String word) {
+    public SearchForm(Long id, String word, boolean varTypeError,String indexHAckerNews ) {
         this.id = id;
         this.word = word;
+        this.varTypeError = varTypeError;
+        this.indexHackerNews= indexHAckerNews;
     }
 
     public Long getId() {
@@ -28,5 +32,22 @@ public class SearchForm implements Serializable {
     public void setWord(String word) {
         this.word = word;
     }
+
+    public boolean getVarTypeError() {
+        return this.varTypeError;
+    }
+
+    public void setVarTypeError(boolean varTypeError) {
+        this.varTypeError = varTypeError;
+    }
+
+    public String getIndexHAckerNews() {
+        return this.indexHackerNews;
+    }
+
+    public void setIndexHAckerNews(String indexHAckerNews) {
+        this.indexHackerNews = indexHAckerNews;
+    }
+
 
 }

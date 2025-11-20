@@ -118,52 +118,45 @@
       <header
         class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom"
       >
-        <ul class="nav nav-pills">
-          <li class="nav-item"> <a th:href="@{/}" class="nav-link">Home</a></li>
-          
-          <li class="nav-item">
-            <a th:href="@{/goToSearch}" class="nav-link active" aria-current="page">Search</a>
-          </li>
+      <ul class="nav nav-pills">
+        <li class="nav-item"> <a th:href="@{/}" class="nav-link">Home</a></li>
 
-          <li class="nav-item"><a th:href="@{/goToSearch?wichOne=true}" class="nav-link">Index URL</a></li>
+        <li class="nav-item"><a th:href="@{/goToSearch}" class="nav-link">Search</a></li>
+        
+        <li class="nav-item">
+            <a th:href="@{/goToSearch?wichOne=true}" class="nav-link active" aria-current="page">IndexURL</a> <!-- o valor 1 é usado para diferenciar se o goToSearch vai para o metodo de indexar URL ou pesquisa de palavra-->
+        </li>
 
-          <li class="nav-item"><a href="#" class="nav-link">About</a></li>
-        </ul>
+        <li class="nav-item"><a href="#" class="nav-link">About</a></li>
+      
+    </ul>
       </header>
-
 
       <main>
         <!-- Logo "Googol" -->
         <div class="googol-logo">
             <span>G</span><span>o</span><span>o</span><span>g</span><span>o</span><span>l</span>
         </div>
-        <form th:action="@{/Search}" th:object="${searchForm}" method="Get" class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3 d-flex flex-column align-items-center" role="search">
-          
-          <input th:field="*{word}"
+        <form th:action="@{/indexUrl}" th:object="${searchForm}" method="Get" class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3 d-flex flex-column align-items-center" role="search">
+            
+            <!-- Script para mostrar pop-up de mensagem de erro-->
+            <div th:if="*{varTypeError}">
+                <script>
+                    alert("O texto inserido não é um URL!");
+                </script>
+            </div>
+
+            <input th:field="*{word}"
               type="search"
               class="form-control bg-dark text-white mb-2"
               placeholder="Search..."
               aria-label="Search"
             />
-
-            <input type="hidden" th:field="*{indexHackerNews}" value="no" /> 
-            <div class="form-check">
-                <input class="form-check-input" 
-                      type="checkbox" 
-                      id="option1" 
-                      th:field="*{indexHackerNews}" 
-                      value="yes">
-                
-                <label class="form-check-label" for="option1">
-                    Index topStories
-                </label>
-            </div>
-
-          <button type="submit" class="btn btn-outline-dark" style="width: 150px;">
-              Search
-          </button>
-
+            <button type="submit" class="btn btn-outline-dark" style="width: 150px;">
+                Index URL
+            </button>
         </form>
+
         
 
 
