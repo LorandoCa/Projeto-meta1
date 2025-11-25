@@ -1,4 +1,4 @@
-package com.example.servingwebcontent.interfaces;
+package com.example.servingwebcontent.forms;
 
 import java.io.Serializable;
 

@@ -16,47 +16,56 @@
 	<properties>
 		<java.version>17</java.version>
 	</properties>
+
+    
 	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-thymeleaf</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-devtools</artifactId>
-			<scope>runtime</scope>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-            <groupId>ognl</groupId>
-            <artifactId>ognl</artifactId>
+    <!-- Dependências do Spring Boot e outras já existentes -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-thymeleaf</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-devtools</artifactId>
+        <scope>runtime</scope>
+        <optional>true</optional>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-test</artifactId>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>ognl</groupId>
+        <artifactId>ognl</artifactId>
         <version>3.1.12</version>
-        </dependency>
+    </dependency>
+    <dependency>
+        <groupId>org.jsoup</groupId>
+        <artifactId>jsoup</artifactId>
+        <version>1.21.2</version>
+    </dependency>
 
-		<dependency>
-			<groupId>org.jsoup</groupId>
-			<artifactId>jsoup</artifactId>
-			<version>1.21.2</version>
-		</dependency>
+    <!-- Removida ou comentada: SDK OpenAI
+    <dependency>
+        <groupId>com.openai</groupId>
+        <artifactId>openai-java</artifactId>
+        <version>4.0.0</version>
+    </dependency>
+    -->
 
-		<dependency>
-			<groupId>com.openai</groupId>
-			<artifactId>openai-java</artifactId>
-			<version>4.0.0</version>
-		</dependency>
-	</dependencies>
+    <!-- Adicionada: Ollama4j (biblioteca Java para Ollama) -->
+    <dependency>
+        <groupId>io.github.ollama4j</groupId>
+        <artifactId>ollama4j</artifactId>
+        <version>1.1.5</version>
+    </dependency>
 
-	
+</dependencies>
 
 	<build>
 		<plugins>

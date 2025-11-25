@@ -1,5 +1,6 @@
 package com.example.servingwebcontent.interfaces;
 
+import com.example.servingwebcontent.forms.PageInfo;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;

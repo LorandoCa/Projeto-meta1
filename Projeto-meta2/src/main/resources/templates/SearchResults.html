@@ -186,6 +186,19 @@
     .align-items-center {
       align-items: center;
     }
+
+    .area-de-exibicao {
+      width: 100%;
+      max-width: 800px; /* Largura ideal para leitura de um parágrafo longo */
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      line-height: 1.6; /* Aumenta o espaçamento entre linhas para melhor legibilidade */
+      color: #333;
+      font-size: 1.1em;
+      text-align: justify; /* Justifica o texto para um visual de bloco */
+  }
   </style>
 </head>
 
@@ -205,73 +218,43 @@
     </header>
 
     <!-- Fazer Um ciclo for para iterar sobre o resultado e fazer print das 10 paginas-->
-  <div class="album">
-    <div class="row">
-      <div class="col col-sm-2 col-md-3">
-        <div class="card">
-          <div class="thumbnail">First result</div>
-          <div class="card-body">
-            <p class="card-text">Place the matadata here. View will take you to the link</p>
-            <div class="d-flex justify-content-between align-items-center">
-              <div class="btn-group">
-                <button>View</button>
+    <div class="album">
+      <div class="row" id="resultsRow">
+      </div>
+    </div>
+    
+    <!-- Thymeleaf injeta a lista 'resultado' dentro do JS -->
+    <script th:inline="javascript">
+        let results = /*[[${resultado}]]*/ [];
+    </script>
+    
+    <script>
+      // Criar cards dinamicamente
+      results.forEach(result => {
+        resultsRow.innerHTML += `
+          <div class="col col-sm-2 col-md-3">
+            <div class="card">
+              <div class="thumbnail">${result.title}</div>
+              <div class="card-body">
+                <p class="card-text">${result.citacao}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="btn-group">
+                    <button>View</button>
+                    <button>Edit</button>
+                  </div>
+                  <small class="text-body-secondary">${result.url}</small>
+                </div>
               </div>
-              <small class="text-body-secondary">9 mins</small>
             </div>
           </div>
-        </div>
-      </div>
+        `;
+      });
+    </script>
 
-      <div class="col col-sm-2 col-md-3">
-        <div class="card">
-          <div class="thumbnail">Thumbnail</div>
-          <div class="card-body">
-            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-            <div class="d-flex justify-content-between align-items-center">
-              <div class="btn-group">
-                <button>View</button>
-                <button>Edit</button>
-              </div>
-              <small class="text-body-secondary">9 mins</small>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col col-sm-2 col-md-3">
-        <div class="card">
-          <div class="thumbnail">Thumbnail</div>
-          <div class="card-body">
-            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-            <div class="d-flex justify-content-between align-items-center">
-              <div class="btn-group">
-                <button>View</button>
-                <button>Edit</button>
-              </div>
-              <small class="text-body-secondary">9 mins</small>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col col-sm-2 col-md-3">
-        <div class="card">
-          <div class="thumbnail">Thumbnail</div>
-          <div class="card-body">
-            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-            <div class="d-flex justify-content-between align-items-center">
-              <div class="btn-group">
-                <button>View</button>
-                <button>Edit</button>
-              </div>
-              <small class="text-body-secondary">9 mins</small>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div class="area-de-exibicao">
+      <h12>📜  Análise contextualizada </h12>
 
     </div>
-  </div>
-
+    
 </body>
 </html>

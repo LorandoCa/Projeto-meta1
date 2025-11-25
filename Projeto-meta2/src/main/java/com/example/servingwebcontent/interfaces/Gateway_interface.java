@@ -1,5 +1,6 @@
 package com.example.servingwebcontent.interfaces;
 
+import com.example.servingwebcontent.forms.PageInfo;
 import java.util.List;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
