@@ -41,11 +41,11 @@ public class SearchForm implements Serializable {
         this.varTypeError = varTypeError;
     }
 
-    public String getIndexHAckerNews() {
+    public String getIndexHackerNews() {
         return this.indexHackerNews;
     }
 
-    public void setIndexHAckerNews(String indexHAckerNews) {
+    public void setIndexHackerNews(String indexHAckerNews) {
         this.indexHackerNews = indexHAckerNews;
     }
 

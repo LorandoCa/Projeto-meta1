@@ -1,23 +1,25 @@
 package com.example.servingwebcontent;
 
-import com.example.servingwebcontent.interfaces.Gateway_interface;
 
 import io.github.ollama4j.Ollama;
-import io.github.ollama4j.models.generate.OllamaGenerateRequest;
-import io.github.ollama4j.models.response.OllamaResult;
+import io.github.ollama4j.models.chat.OllamaChatMessageRole;
+import io.github.ollama4j.models.chat.OllamaChatRequest;
+import io.github.ollama4j.models.chat.OllamaChatResult;
 
-import com.example.servingwebcontent.forms.PageInfo;
+import src.PageInfo;
 import com.example.servingwebcontent.forms.SearchForm;
 
-import java.io.FileInputStream;
-import java.io.IOException;
+import src.Gateway_interface;
+
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.rmi.Naming;
+
 import java.util.List;
-import java.util.Properties;
+
 
 import java.util.concurrent.*;
+
+import javax.annotation.Resource;
 
 import org.springframework.ui.Model;
 
@@ -29,60 +31,56 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 
 
+
 @Controller
 public class GreetingController {
 
 	/////////////////////////////////////SETUP///////////////////////////////////////////////////////////////
-	String endereço_gateway=null;
-	String porta=null;
-	Properties config = new Properties();
-	Gateway_interface gateway_stub;
+	
+
+	@Resource(name = "applicationScopedGatewayGenerator")
+	private Gateway_interface gateway_stub;
+
+
+
 
 	GreetingController(){
 
-		try (FileInputStream input = new FileInputStream("config.properties")) {
-			// Carrega o arquivo .properties
-			config.load(input);
-			// Lê as propriedades
-			endereço_gateway= config.getProperty("rmi.host2");
-			porta = config.getProperty("rmi.port2");
-		}catch(IOException e) {
-			System.out.println("Erro ao carregar arquivo de configuração: " + e.getMessage());
-		}
-
-		
-		//gateway interface setup
-		try {
-			gateway_stub = (Gateway_interface)Naming.lookup( String.format("rmi://%s:%s/Gateway",endereço_gateway,porta));
-		}catch(Exception exception){}
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	}
+
+
+
 	
+	//Para a implementacao do chat completion, foram usadas as informações disponíveis nesta pagina oficial : https://ollama4j.github.io/ollama4j/apis-generate/chat
 	public String Completion(String wordToLook){
 		try{
 			Ollama ollama = new Ollama("http://localhost:11434/");
-			// We're just using our quick-setup utility here to instantiate Ollama. Use the following
-			// to set it up with your Ollama configuration.
-			// Ollama ollama = new Ollama("http://your-ollama-host:11434/");
+			ollama.setRequestTimeoutSeconds(120);
+			
 			String model = "mistral:7b";
 			ollama.pullModel(model);
 
-			OllamaResult result =
-					ollama.generate(
-							OllamaGenerateRequest.builder()
-									.withModel(model)
-									.withPrompt(wordToLook)
-									.build(),
-								null);
+			OllamaChatRequest builder = OllamaChatRequest.builder().withModel(model);
 
-								
-			return result.getResponse();
+			// create first user question
+			OllamaChatRequest requestModel =
+					builder.withMessage(OllamaChatMessageRole.USER, wordToLook)
+ 
+							.build();
+
+			// start conversation with model
+			OllamaChatResult chatResult = ollama.chat(requestModel, null);
+
+			return  chatResult.getResponseModel().getMessage().getResponse();
 
 		}catch(Exception e){
 			System.out.println("Erro ao comunicar com o Ollama server");
+			e.printStackTrace();
 		}
         return null;
     }
+
 
 	public boolean isValidURL(String wordToIndex) {
 		try {
@@ -126,6 +124,7 @@ public class GreetingController {
 
 			}catch(Exception e){
 				System.out.println("erro ao comunicar com a gateway. URl nao pesquisado");
+				e.printStackTrace();
 			}
 
 		}
@@ -144,11 +143,14 @@ public class GreetingController {
 
 				// Executa outras coisas enquanto a thread trabalha
 				List<PageInfo> result = gateway_stub.pesquisa_word(wordToLook);
+
 				model.addAttribute("resultado", result);
 				// Para pegar o resultado da thread (bloqueia até terminar)
 				
 				try {
+					
 					String completionResult = futureResult.get(); 
+					System.out.println(completionResult);
 					model.addAttribute("resultadoCompletion", completionResult);
 				} catch (InterruptedException e) {
 					System.out.println("Problema com a thread de execução do Ollama");
@@ -159,10 +161,9 @@ public class GreetingController {
 				// Encerra o executor
 				executor.shutdown();
 								
-				String confirmation= searchForm.getIndexHAckerNews();
+				String confirmation= searchForm.getIndexHackerNews();
 
 				if(confirmation.equals("yes")){
-
 
 
 					//Codigo para index URLs de top Stories de HackerNews que contenham os termos da variavel "wordToLook"
@@ -173,6 +174,7 @@ public class GreetingController {
 
 			} catch (Exception e) {
 				System.out.println("Erro a comunicar com a gateway. Frase nao pesquisada");
+				e.printStackTrace();
 			}
 		}
 
@@ -203,3 +205,4 @@ public class GreetingController {
 
 
 }
+
