@@ -53,6 +53,7 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
             topTen= topTenUpdate;
             BarrelsNames= BarrelsNamesUpdate;
             searchDur=searchDurUpdate;
+
         }
     
     //Interface implemetnation end

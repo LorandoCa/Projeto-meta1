@@ -112,14 +112,69 @@
           </li>
           <li class="nav-item"><a th:href="@{/goToSearch}" class="nav-link">Search</a></li>
           <li class="nav-item"><a th:href="@{/goToSearch?wichOne=true}" class="nav-link">Index URL</a></li> <!-- o valor 1 é usado para diferenciar se o goToSearch vai para o metodo de indexar URL ou pesquisa de palavra-->
-          <li class="nav-item"><a href="#" class="nav-link">REST functionalities</a></li>
           <li class="nav-item"><a href="#" class="nav-link">About</a></li>
         </ul>
       </header>
 
       <main>
 
+        <div>
+          <table id="conversation">
+              <thead>
+                  <tr>
+                      <th>Messages</th>
+                  </tr>
+              </thead>
+              <tbody id="messages"></tbody>
+          </table>
+        </div>
 
+        <script>
+
+          function connect() {
+            stompClient = new StompJs.Client({
+                brokerURL: 'ws://' + window.location.host
+                    + '/my-websocket',
+                reconnectDelay: 5000,
+                onConnect: (frame) => {
+                    stompClient.subscribe('/topic/messages',
+                        function (message) {
+                            showMessage(
+                                JSON.parse(message.body).content);
+                        });
+                }
+            })
+            stompClient.activate();
+          }
+
+          function showMessage(msg) {
+            const table = document.getElementById("messages");
+        
+            // ---- BARRELS ----
+            let barrelsSize = msg.content.barrels.length;
+            for (let i = 0; i < barrelsSize; i++) {
+                let row = table.insertRow();
+                let c1 = row.insertCell(0);
+                c1.textContent = msg.content.barrels[i];
+            }
+        
+            // ---- TIME ---- (assumindo que é string)
+            let row = table.insertRow();
+            let c1 = row.insertCell(0);
+            c1.textContent = msg.content.time;
+        
+            // ---- TOP TEN ----
+            let topSize = msg.content.topTen.length;
+            for (let i = 0; i < topSize; i++) {
+                let row = table.insertRow();
+                let c1 = row.insertCell(0);
+                c1.textContent = msg.content.topTen[i];
+            }
+          }
+
+
+          connect();
+        </script>
 
 
 

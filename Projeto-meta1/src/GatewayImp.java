@@ -35,6 +35,11 @@ import java.rmi.registry.LocateRegistry;
  */
 
 public class GatewayImp extends UnicastRemoteObject implements Gateway_interface{
+    webInterface web = null;
+
+
+
+
     /**
      * Fila de URLs a processar por Crawlers.
      * <p>
@@ -255,6 +260,11 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
             try {
                 ((Client_interface)client).updateStatistics(new ArrayList<>(listaPesq.subList(0, Math.min(10, listaPesq.size()))), 
                                                             getBarrelsNames(), somaTempoExecucao/countPesquisas);
+
+
+
+                updateWeb(new ArrayList<>(listaPesq.subList(0, Math.min(10, listaPesq.size()))), 
+                getBarrelsNames(), somaTempoExecucao/countPesquisas);
             } catch (java.rmi.ConnectException e) {
                 System.out.println("Cliente desconectado. Removendo da lista...");
                 it.remove(); // o cliente caiu
@@ -267,6 +277,21 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
             }
         }
   
+    }
+
+
+    public void updateWeb(List<String> topTen, List<String> barrels, double execTime){
+        Map<String, List<String>> var = new HashMap<>();
+        var.put("barrels", barrels);
+        var.put("topTen", topTen);
+        List<String> exectime= new ArrayList<>();
+        exectime.add(String.valueOf(exectime));
+        try {
+            web.update(var);
+        } catch (Exception e) {
+            System.out.println("Erro a fazer update no webServer");
+        }
+        
     }
 
     /**
@@ -334,6 +359,15 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
         barrelsNames.add(String.format("Barrel%d", barrel_counter));
         return String.format("Barrel%d", barrel_counter++);
     }
+
+
+
+    @Override
+    public void subscribe(webInterface c) throws RemoteException {
+        web= c;
+    }
+
+
 
     /**
      * Devolve o número de Storage Barrels actualmente registados na Gateway.
@@ -412,6 +446,8 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
         // TODO Auto-generated method stub
         return barrels;
     }
+
+    
 
 
 }

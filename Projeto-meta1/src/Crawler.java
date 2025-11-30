@@ -76,7 +76,9 @@ public class Crawler {
                 while(url!=null){
                     try{
                         stub_barrel= stub.getBarrel();
+
                         System.out.printf("%s\n", url);
+                        
                         Document doc = Jsoup.connect(url)
                                 .userAgent("Mozilla/5.0 (compatible; MeuCrawler/1.0; +http://meusite.com)")
                                 .header("From", "seuemail@dominio.com") // opcional, indica contato

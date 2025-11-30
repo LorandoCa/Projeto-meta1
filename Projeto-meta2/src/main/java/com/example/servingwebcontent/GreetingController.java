@@ -7,34 +7,31 @@ import io.github.ollama4j.models.chat.OllamaChatRequest;
 import io.github.ollama4j.models.chat.OllamaChatResult;
 
 import src.PageInfo;
+import src.webInterface;
+
 import com.example.servingwebcontent.forms.SearchForm;
 
 import src.Gateway_interface;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-
 import java.util.List;
-
-
+import java.util.Map;
 import java.util.concurrent.*;
 
 import javax.annotation.Resource;
 
 import org.springframework.ui.Model;
-
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 
 
-
-
-
 @Controller
-public class GreetingController {
-
+public class GreetingController implements webInterface {
+	public Map<String, List<String>> statistics ;
 	/////////////////////////////////////SETUP///////////////////////////////////////////////////////////////
 	
 
@@ -44,12 +41,22 @@ public class GreetingController {
 
 
 
-	GreetingController(){
+	public GreetingController(){
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	}
 
 
+
+	
+
+	@Override
+	@SendTo("/topic/messages")
+	public void update(Map<String, List<String>> info) {
+		statistics= info;
+		System.out.println("Message received ");
+		new Message(info);
+	}
 
 	
 	//Para a implementacao do chat completion, foram usadas as informações disponíveis nesta pagina oficial : https://ollama4j.github.io/ollama4j/apis-generate/chat
@@ -114,19 +121,20 @@ public class GreetingController {
 		
 		String wordToLook= searchForm.getWord();
 		
-		if(isValidURL(wordToLook)){
+		if(isValidURL(wordToLook)){ //a pesquisa de urls ligado a uma url também é feita pelo endpoint /Search
 
 			try{
 
 				List<String> result = gateway_stub.pesquisa_URL(wordToLook);
 				model.addAttribute("resultado", result);
 				
+				
 
 			}catch(Exception e){
 				System.out.println("erro ao comunicar com a gateway. URl nao pesquisado");
 				e.printStackTrace();
 			}
-
+			return "URLSearchResults.html";
 		}
 		else{
 			try {
@@ -189,7 +197,7 @@ public class GreetingController {
 		if(isValidURL(wordToIndex)){
 			try {
 			gateway_stub.addURL(wordToIndex);
-			
+			System.out.println("URL indexed");
 			} catch (Exception e) {
 				System.out.println("Erro a comunicar com a gateway");
 			}
