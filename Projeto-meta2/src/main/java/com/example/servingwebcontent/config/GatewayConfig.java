@@ -5,13 +5,13 @@ import java.io.InputStream;
 import java.rmi.Naming;
 import java.util.Properties;
 
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.example.servingwebcontent.GreetingController;
 
 import src.Gateway_interface;
 
@@ -21,14 +21,10 @@ public class GatewayConfig {
 
     private String endereço_gateway=null;
 	private String porta=null;
-	private Gateway_interface gateway_stub;
     
 
     @Bean(name = "applicationScopedGatewayGenerator")
     @Scope(value = WebApplicationContext.SCOPE_APPLICATION, proxyMode = ScopedProxyMode.TARGET_CLASS)
-
-
-
     public Gateway_interface gatewayConfig() {
         
         try (InputStream input = getClass().getClassLoader().getResourceAsStream("config.properties")) {
@@ -48,8 +44,8 @@ public class GatewayConfig {
 		
 		//gateway interface setup
 		try {
-			gateway_stub = (Gateway_interface)Naming.lookup( String.format("rmi://%s:%s/Gateway",endereço_gateway,porta));
-			return gateway_stub;
+			Gateway_interface stub = (Gateway_interface)Naming.lookup( String.format("rmi://%s:%s/Gateway",endereço_gateway,porta));
+			return stub;
 
 		}catch(Exception exception){
 			System.out.println("Erro a criar a interface gateway");
@@ -58,6 +54,7 @@ public class GatewayConfig {
 
         return null;
     }
+
 
 
 }

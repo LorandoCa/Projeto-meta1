@@ -286,6 +286,7 @@ public class GatewayImp extends UnicastRemoteObject implements Gateway_interface
         var.put("topTen", topTen);
         List<String> exectime= new ArrayList<>();
         exectime.add(String.valueOf(exectime));
+        var.put("execTime", exectime);
         try {
             web.update(var);
         } catch (Exception e) {

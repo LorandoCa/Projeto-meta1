@@ -225,7 +225,7 @@ public class ClientImp extends UnicastRemoteObject implements Client_interface {
                 default:
                     break;
             }
-            scanner.close(); //alterado 
+
         }
         } catch (Exception e) {
             e.printStackTrace();

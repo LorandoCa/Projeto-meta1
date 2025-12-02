@@ -7,7 +7,6 @@ import io.github.ollama4j.models.chat.OllamaChatRequest;
 import io.github.ollama4j.models.chat.OllamaChatResult;
 
 import src.PageInfo;
-import src.webInterface;
 
 import com.example.servingwebcontent.forms.SearchForm;
 
@@ -19,10 +18,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.springframework.ui.Model;
-import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -30,33 +30,39 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 
 @Controller
-public class GreetingController implements webInterface {
+public class GreetingController {
 	public Map<String, List<String>> statistics ;
 	/////////////////////////////////////SETUP///////////////////////////////////////////////////////////////
 	
+	@Autowired
+	webInterfaceImp conector;
 
 	@Resource(name = "applicationScopedGatewayGenerator")
 	private Gateway_interface gateway_stub;
 
 
 
-
 	public GreetingController(){
-
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	}
 
 
 
-	
+    @PostConstruct
+    public void setupSubscription() {
+				
+        // Obtenha o bean do controller (injete-o ou crie-o, se não for um bean
+        
+        try {
+            // A ação de subscrição é executada uma vez
+            gateway_stub.subscribe(conector);
+			System.out.println("Controller subscrito com sucesso");
+        } catch (Exception e) {
+            System.err.println("Erro a fazer subscrição Controller -> Gateway: " + e.getMessage());
+        }
+    }
 
-	@Override
-	@SendTo("/topic/messages")
-	public void update(Map<String, List<String>> info) {
-		statistics= info;
-		System.out.println("Message received ");
-		new Message(info);
-	}
+	
 
 	
 	//Para a implementacao do chat completion, foram usadas as informações disponíveis nesta pagina oficial : https://ollama4j.github.io/ollama4j/apis-generate/chat
